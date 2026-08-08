@@ -68,9 +68,6 @@ export default function Footer({ setCurrentPage }) {
                 ))}
               </ul>
             </div>
-            <div className="mt-3 small opacity-50">
-              Tech Stack: React JS, Spring Boot, MySQL, Bootstrap
-            </div>
           </div>
         </div>
 
@@ -79,11 +76,6 @@ export default function Footer({ setCurrentPage }) {
         <div className="d-flex flex-column flex-md-row align-items-center justify-content-between text-white-50 small">
           <div>
             &copy; 2026 FixMate Platform. Designed with <Heart size={14} className="text-danger d-inline mx-1" fill="currentColor" /> for Smart Communities & Empowered Local Skilled Workers.
-          </div>
-          <div className="mt-2 mt-md-0">
-            <span className="badge bg-secondary bg-opacity-25 text-light me-2">React + Bootstrap</span>
-            <span className="badge bg-success bg-opacity-25 text-light me-2">Spring Boot + MySQL</span>
-            <span className="badge bg-warning bg-opacity-25 text-dark">JWT Auth</span>
           </div>
         </div>
       </div>

@@ -1,156 +1,334 @@
 import React from 'react';
-import { ShieldCheck, Zap, UserCheck, Calendar, Users, Wrench, LayoutDashboard, LogOut } from 'lucide-react';
+import fixmateLogo from '../assets/fixmate-logo.jpeg';
 
-export default function Navbar({ currentPage, setCurrentPage, currentRole, setCurrentRole, onOpenEmergency, user, onLogout }) {
+import {
+  Zap,
+  UserCheck,
+  Calendar,
+  Users,
+  LayoutDashboard,
+  LogOut,
+  Wrench
+} from 'lucide-react';
+
+export default function Navbar({
+  currentPage,
+  setCurrentPage,
+  currentRole,
+  setCurrentRole,
+  onOpenEmergency,
+  user,
+  onLogout
+}) {
   return (
-    <nav className="navbar navbar-expand-lg sticky-top bg-white border-bottom shadow-sm py-2">
-      <div className="container">
+    <nav className="navbar navbar-expand-lg bg-white shadow-sm py-2">
+      <div className="container-fluid px-4 d-flex align-items-center">
+
         {/* Brand Logo */}
-        <button 
+        <button
           className="navbar-brand d-flex align-items-center gap-2 border-0 bg-transparent text-start p-0 me-4"
           onClick={() => setCurrentPage('home')}
         >
-          <div className="rounded-3 bg-fixmate-navy p-2 text-white d-flex align-items-center justify-content-center" style={{ width: '40px', height: '40px' }}>
-            <Wrench size={22} className="text-fixmate-orange" />
-          </div>
-          <div>
-            <span className="fw-extrabold fs-4 text-dark tracking-tight">Fix<span className="text-fixmate-orange">Mate</span></span>
-            <small className="d-block text-muted" style={{ fontSize: '0.68rem', marginTop: '-4px' }}>Smart Local Services</small>
+          <img
+            src={fixmateLogo}
+            alt="FixMate Logo"
+            className="rounded-circle"
+            style={{
+              width: '40px',
+              height: '40px',
+              objectFit: 'cover'
+            }}
+          />
+
+          <div className="lh-sm">
+            <div className="fs-5 fw-normal">
+              Fix<span className="text-warning">Mate</span>
+            </div>
+
+            <small
+              className="d-block text-muted"
+              style={{ fontSize: '0.68rem', marginTop: '-2px' }}
+            >
+              Smart Local Services
+            </small>
           </div>
         </button>
 
         {/* Mobile Toggle */}
-        <button className="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#fixmateNav">
+        <button
+          className="navbar-toggler border-0"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#fixmateNav"
+          aria-controls="fixmateNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
           <span className="navbar-toggler-icon"></span>
         </button>
 
         {/* Nav Content */}
-        <div className="collapse navbar-collapse" id="fixmateNav">
+        <div
+          className="collapse navbar-collapse align-items-center"
+          id="fixmateNav"
+        >
+
           {/* Main Links */}
-          <ul className="navbar-nav me-auto mb-2 mb-lg-0 fw-semibold">
+          <ul className="navbar-nav me-auto mb-2 mb-lg-0 fw-semibold d-flex align-items-center">
+
+            {/* Home */}
             <li className="nav-item">
-              <button 
-                className={`nav-link border-0 bg-transparent px-3 ${currentPage === 'home' ? 'text-primary active fw-bold' : 'text-secondary'}`}
+              <button
+                className={`nav-link text-nowrap border-0 bg-transparent px-2 d-flex align-items-center ${currentPage === 'home'
+                    ? 'text-primary active fw-bold'
+                    : 'text-secondary'
+                  }`}
                 onClick={() => setCurrentPage('home')}
               >
                 Home
               </button>
             </li>
+
+            {/* Services */}
             <li className="nav-item">
-              <button 
-                className={`nav-link border-0 bg-transparent px-3 ${currentPage === 'services' ? 'text-primary active fw-bold' : 'text-secondary'}`}
+              <button
+                className={`nav-link text-nowrap border-0 bg-transparent px-2 d-flex align-items-center ${currentPage === 'services'
+                    ? 'text-primary active fw-bold'
+                    : 'text-secondary'
+                  }`}
                 onClick={() => setCurrentPage('services')}
               >
                 Services
               </button>
             </li>
+
+            {/* Providers */}
             <li className="nav-item">
-              <button 
-                className={`nav-link border-0 bg-transparent px-3 ${currentPage === 'providers' ? 'text-primary active fw-bold' : 'text-secondary'}`}
+              <button
+                className={`nav-link text-nowrap border-0 bg-transparent px-2 d-flex align-items-center ${currentPage === 'providers'
+                    ? 'text-primary active fw-bold'
+                    : 'text-secondary'
+                  }`}
                 onClick={() => setCurrentPage('providers')}
               >
                 Providers
               </button>
             </li>
 
-            {/* Customer Unique Feature Pages */}
+            {/* Customer Only Pages */}
             {currentRole === 'ROLE_CUSTOMER' && (
               <>
+                {/* Reminders */}
                 <li className="nav-item">
-                  <button 
-                    className={`nav-link border-0 bg-transparent px-3 ${currentPage === 'reminders' ? 'text-primary active fw-bold' : 'text-secondary'}`}
+                  <button
+                    className={`nav-link text-nowrap border-0 bg-transparent px-2 d-flex align-items-center ${currentPage === 'reminders'
+                        ? 'text-primary active fw-bold'
+                        : 'text-secondary'
+                      }`}
                     onClick={() => setCurrentPage('reminders')}
                   >
-                    <Calendar size={15} className="me-1" /> Reminders
+                    <Calendar
+                      size={15}
+                      className="me-1 flex-shrink-0"
+                    />
+                    Reminders
                   </button>
                 </li>
+
+                {/* Society Booking */}
                 <li className="nav-item">
-                  <button 
-                    className={`nav-link border-0 bg-transparent px-3 ${currentPage === 'society' ? 'text-primary active fw-bold' : 'text-secondary'}`}
+                  <button
+                    className={`nav-link text-nowrap border-0 bg-transparent px-2 d-flex align-items-center ${currentPage === 'society'
+                        ? 'text-primary active fw-bold'
+                        : 'text-secondary'
+                      }`}
                     onClick={() => setCurrentPage('society')}
                   >
-                    <Users size={15} className="me-1" /> Society Booking
+                    <Users
+                      size={15}
+                      className="me-1 flex-shrink-0"
+                    />
+                    Society Booking
                   </button>
                 </li>
               </>
             )}
 
-            {/* Dashboard Link based on Role */}
+            {/* Dashboard */}
             <li className="nav-item">
-              <button 
-                className={`nav-link border-0 bg-transparent px-3 ${currentPage.includes('dashboard') ? 'text-primary active fw-bold' : 'text-secondary'}`}
+              <button
+                className={`nav-link text-nowrap border-0 bg-transparent px-2 d-flex align-items-center ${currentPage.includes('dashboard')
+                    ? 'text-primary active fw-bold'
+                    : 'text-secondary'
+                  }`}
                 onClick={() => {
-                  if (currentRole === 'ROLE_PROVIDER') setCurrentPage('provider-dashboard');
-                  else if (currentRole === 'ROLE_ADMIN') setCurrentPage('admin-dashboard');
-                  else setCurrentPage('customer-dashboard');
+                  if (currentRole === 'ROLE_PROVIDER') {
+                    setCurrentPage('provider-dashboard');
+                  } else if (currentRole === 'ROLE_ADMIN') {
+                    setCurrentPage('admin-dashboard');
+                  } else {
+                    setCurrentPage('customer-dashboard');
+                  }
                 }}
               >
-                <LayoutDashboard size={15} className="me-1" /> Dashboard
+                <LayoutDashboard
+                  size={15}
+                  className="me-1 flex-shrink-0"
+                />
+                Dashboard
               </button>
             </li>
           </ul>
 
           {/* Right Action Bar */}
-          <div className="d-flex align-items-center gap-2">
-            {/* Emergency Service Button */}
-            <button className="btn btn-emergency d-flex align-items-center gap-1" onClick={onOpenEmergency}>
-              <Zap size={16} fill="currentColor" /> 24/7 Emergency
+          <div className="d-flex align-items-center gap-2 flex-nowrap">
+
+            {/* Emergency Button */}
+            <button
+              className="btn btn-emergency d-flex align-items-center gap-1 text-nowrap"
+              onClick={onOpenEmergency}
+            >
+              <Zap size={16} fill="currentColor" />
+              24/7 Emergency
             </button>
 
-            {/* Role Selector Switcher */}
+            {/* Role Selector */}
             <div className="dropdown">
-              <button className="btn btn-outline-secondary dropdown-toggle btn-sm rounded-pill px-3 fw-semibold" type="button" data-bs-toggle="dropdown">
-                Role: {currentRole === 'ROLE_ADMIN' ? 'Admin' : currentRole === 'ROLE_PROVIDER' ? 'Provider' : 'Customer'}
+              <button
+                className="btn btn-outline-secondary dropdown-toggle btn-sm rounded-pill px-3 fw-semibold text-nowrap"
+                type="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                Role:{' '}
+                {currentRole === 'ROLE_ADMIN'
+                  ? 'Admin'
+                  : currentRole === 'ROLE_PROVIDER'
+                    ? 'Provider'
+                    : 'Customer'}
               </button>
+
               <ul className="dropdown-menu dropdown-menu-end shadow border-0">
+
                 <li>
-                  <button className="dropdown-item py-2 fw-medium" onClick={() => { setCurrentRole('ROLE_CUSTOMER'); setCurrentPage('customer-dashboard'); }}>
+                  <button
+                    className="dropdown-item py-2 fw-medium"
+                    onClick={() => {
+                      setCurrentRole('ROLE_CUSTOMER');
+                      setCurrentPage('customer-dashboard');
+                    }}
+                  >
                     👤 Customer View
                   </button>
                 </li>
+
                 <li>
-                  <button className="dropdown-item py-2 fw-medium" onClick={() => { setCurrentRole('ROLE_PROVIDER'); setCurrentPage('provider-dashboard'); }}>
+                  <button
+                    className="dropdown-item py-2 fw-medium"
+                    onClick={() => {
+                      setCurrentRole('ROLE_PROVIDER');
+                      setCurrentPage('provider-dashboard');
+                    }}
+                  >
                     🔧 Service Provider View
                   </button>
                 </li>
+
                 <li>
-                  <button className="dropdown-item py-2 fw-medium" onClick={() => { setCurrentRole('ROLE_ADMIN'); setCurrentPage('admin-dashboard'); }}>
+                  <button
+                    className="dropdown-item py-2 fw-medium"
+                    onClick={() => {
+                      setCurrentRole('ROLE_ADMIN');
+                      setCurrentPage('admin-dashboard');
+                    }}
+                  >
                     🛡️ Admin Control Panel
                   </button>
                 </li>
+
               </ul>
             </div>
 
-            {/* Auth Buttons */}
+            {/* User / Authentication */}
             {user ? (
               <div className="dropdown">
-                <button className="btn btn-fixmate-primary btn-sm rounded-pill px-3" type="button" data-bs-toggle="dropdown">
-                  <UserCheck size={16} className="me-1" /> {user.name}
+
+                <button
+                  className="btn btn-fixmate-primary btn-sm rounded-pill px-3 text-nowrap"
+                  type="button"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                >
+                  <UserCheck
+                    size={16}
+                    className="me-1"
+                  />
+                  {user.name}
                 </button>
+
                 <ul className="dropdown-menu dropdown-menu-end shadow border-0">
+
                   <li>
-                    <button className="dropdown-item py-2 fw-medium" onClick={() => setCurrentPage(currentRole === 'ROLE_PROVIDER' ? 'provider-dashboard' : currentRole === 'ROLE_ADMIN' ? 'admin-dashboard' : 'customer-dashboard')}>
-                      <LayoutDashboard size={14} className="me-2 text-muted" /> Dashboard
+                    <button
+                      className="dropdown-item py-2 fw-medium"
+                      onClick={() =>
+                        setCurrentPage(
+                          currentRole === 'ROLE_PROVIDER'
+                            ? 'provider-dashboard'
+                            : currentRole === 'ROLE_ADMIN'
+                              ? 'admin-dashboard'
+                              : 'customer-dashboard'
+                        )
+                      }
+                    >
+                      <LayoutDashboard
+                        size={14}
+                        className="me-2 text-muted"
+                      />
+                      Dashboard
                     </button>
                   </li>
-                  <li><hr className="dropdown-divider" /></li>
+
                   <li>
-                    <button className="dropdown-item text-danger py-2 fw-medium" onClick={onLogout}>
-                      <LogOut size={14} className="me-2" /> Logout
+                    <hr className="dropdown-divider" />
+                  </li>
+
+                  <li>
+                    <button
+                      className="dropdown-item text-danger py-2 fw-medium"
+                      onClick={onLogout}
+                    >
+                      <LogOut
+                        size={14}
+                        className="me-2"
+                      />
+                      Logout
                     </button>
                   </li>
+
                 </ul>
               </div>
             ) : (
-              <div className="d-flex gap-2">
-                <button className="btn btn-outline-primary btn-sm rounded-pill px-3 fw-semibold" onClick={() => setCurrentPage('login')}>
+              /* Login / Register */
+              <div className="d-flex gap-2 flex-nowrap">
+
+                <button
+                  className="btn btn-outline-primary btn-sm rounded-pill px-3 fw-semibold text-nowrap"
+                  onClick={() => setCurrentPage('login')}
+                >
                   Login
                 </button>
-                <button className="btn btn-fixmate-primary btn-sm rounded-pill px-3 fw-semibold" onClick={() => setCurrentPage('register')}>
+
+                <button
+                  className="btn btn-fixmate-primary btn-sm rounded-pill px-3 fw-semibold text-nowrap"
+                  onClick={() => setCurrentPage('register')}
+                >
                   Register
                 </button>
+
               </div>
             )}
+
           </div>
         </div>
       </div>

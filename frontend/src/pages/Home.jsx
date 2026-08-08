@@ -53,10 +53,10 @@ export default function Home({ setCurrentPage, setSelectedService, setSelectedPr
 
               <div className="d-flex align-items-center gap-2 text-light opacity-75 small">
                 <span>Popular:</span>
-                <span className="badge bg-white bg-opacity-20 text-white rounded-pill px-2.5 py-1" style={{ cursor: 'pointer' }} onClick={() => setSearchQuery('Electrician')}>Electrician</span>
-                <span className="badge bg-white bg-opacity-20 text-white rounded-pill px-2.5 py-1" style={{ cursor: 'pointer' }} onClick={() => setSearchQuery('Plumber')}>Plumber</span>
-                <span className="badge bg-white bg-opacity-20 text-white rounded-pill px-2.5 py-1" style={{ cursor: 'pointer' }} onClick={() => setSearchQuery('AC Repair')}>AC Repair</span>
-                <span className="badge bg-white bg-opacity-20 text-white rounded-pill px-2.5 py-1" style={{ cursor: 'pointer' }} onClick={() => setSearchQuery('Cleaning')}>Cleaning</span>
+                <span className="badge bg-white bg-opacity-20 text-black rounded-pill px-2.5 py-1" style={{ cursor: 'pointer' }} onClick={() => setSearchQuery('Electrician')}>Electrician</span>
+                <span className="badge bg-white bg-opacity-20 text-black rounded-pill px-2.5 py-1" style={{ cursor: 'pointer' }} onClick={() => setSearchQuery('Plumber')}>Plumber</span>
+                <span className="badge bg-white bg-opacity-20 text-black rounded-pill px-2.5 py-1" style={{ cursor: 'pointer' }} onClick={() => setSearchQuery('AC Repair')}>AC Repair</span>
+                <span className="badge bg-white bg-opacity-20 text-black rounded-pill px-2.5 py-1" style={{ cursor: 'pointer' }} onClick={() => setSearchQuery('Cleaning')}>Cleaning</span>
               </div>
             </div>
 
@@ -120,17 +120,17 @@ export default function Home({ setCurrentPage, setSelectedService, setSelectedPr
 
       {/* Emergency Service Banner Section */}
       <section className="container my-5">
-        <div className="bg-gradient p-4 p-md-5 rounded-4 text-white shadow-lg position-relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #EA580C 0%, #F97316 100%)' }}>
+        <div className="bg-gradient p-4 p-md-5 rounded-4 text-black shadow-lg position-relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #FFF7ED 0%, #F97316 100%)' }}>
           <div className="row align-items-center">
             <div className="col-lg-8">
               <div className="d-inline-flex align-items-center gap-2 bg-white bg-opacity-20 px-3 py-1 rounded-pill small fw-bold mb-2">
-                <Zap size={16} fill="currentColor" /> 24/7 Priority Emergency Support
+                <Zap size={16} fill="yellow" /> 24/7 Priority Emergency Support
               </div>
               <h2 className="fw-extrabold display-6 mb-2">Got an Urgent Leakage or Power Breakdown?</h2>
               <p className="fs-6 opacity-90 mb-0">Get connected with available emergency local technicians within seconds.</p>
             </div>
             <div className="col-lg-4 text-lg-end mt-3 mt-lg-0">
-              <button className="btn btn-light text-dark fw-bold btn-lg rounded-pill px-4 shadow" onClick={onOpenEmergency}>
+              <button className="btn btn-light text-Red fw-bold btn-lg rounded-pill px-4 shadow" onClick={onOpenEmergency}>
                 Request Help Instantly <ArrowRight size={18} className="ms-1" />
               </button>
             </div>
