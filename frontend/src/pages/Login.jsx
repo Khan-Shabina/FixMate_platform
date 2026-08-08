@@ -1,34 +1,46 @@
 import React, { useState } from 'react';
-import { Lock, Mail, Shield, User, Wrench, ArrowRight } from 'lucide-react';
+import { Lock, Mail, Wrench, ArrowRight, AlertCircle, CheckCircle } from 'lucide-react';
 import { apiService } from '../services/api';
 
 export default function Login({ setCurrentPage, setCurrentRole, setUser }) {
   const [email, setEmail] = useState('customer@fixmate.com');
   const [password, setPassword] = useState('password123');
   const [selectedRole, setSelectedRole] = useState('ROLE_CUSTOMER');
+  const [errorMsg, setErrorMsg] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setErrorMsg('');
     setLoading(true);
-    const data = await apiService.login(email, password);
-    setUser(data);
-    setCurrentRole(data.role);
+    
+    const result = await apiService.login(email, password);
     setLoading(false);
-    if (data.role === 'ROLE_PROVIDER') setCurrentPage('provider-dashboard');
-    else if (data.role === 'ROLE_ADMIN') setCurrentPage('admin-dashboard');
-    else setCurrentPage('customer-dashboard');
+
+    if (result.success && result.user) {
+      setUser(result.user);
+      setCurrentRole(result.user.role);
+      if (result.user.role === 'ROLE_PROVIDER') setCurrentPage('provider-dashboard');
+      else if (result.user.role === 'ROLE_ADMIN') setCurrentPage('admin-dashboard');
+      else setCurrentPage('customer-dashboard');
+    } else {
+      setErrorMsg(result.error || 'Authentication failed. Please try again.');
+    }
   };
 
   const setQuickDemo = (role) => {
+    setErrorMsg('');
     if (role === 'ROLE_CUSTOMER') {
       setEmail('customer@fixmate.com');
+      setPassword('password123');
       setSelectedRole('ROLE_CUSTOMER');
     } else if (role === 'ROLE_PROVIDER') {
       setEmail('rahul.provider@fixmate.com');
+      setPassword('password123');
       setSelectedRole('ROLE_PROVIDER');
     } else {
       setEmail('admin@fixmate.com');
+      setPassword('password123');
       setSelectedRole('ROLE_ADMIN');
     }
   };
@@ -41,33 +53,45 @@ export default function Login({ setCurrentPage, setCurrentRole, setUser }) {
             <Wrench size={30} className="text-fixmate-orange" />
           </div>
           <h3 className="fw-extrabold text-dark">Welcome Back</h3>
-          <p className="text-muted small">Sign in to manage your bookings and services</p>
+          <p className="text-muted small">Sign in to manage your bookings and local services</p>
         </div>
 
         {/* Role Quick Switcher */}
-        <div className="btn-group w-100 mb-4 p-1 bg-light rounded-3 border">
-          <button 
-            type="button" 
-            className={`btn btn-sm rounded-2 fw-bold ${selectedRole === 'ROLE_CUSTOMER' ? 'btn-white bg-white text-primary shadow-sm' : 'text-muted'}`}
-            onClick={() => setQuickDemo('ROLE_CUSTOMER')}
-          >
-            Customer
-          </button>
-          <button 
-            type="button" 
-            className={`btn btn-sm rounded-2 fw-bold ${selectedRole === 'ROLE_PROVIDER' ? 'btn-white bg-white text-primary shadow-sm' : 'text-muted'}`}
-            onClick={() => setQuickDemo('ROLE_PROVIDER')}
-          >
-            Provider
-          </button>
-          <button 
-            type="button" 
-            className={`btn btn-sm rounded-2 fw-bold ${selectedRole === 'ROLE_ADMIN' ? 'btn-white bg-white text-primary shadow-sm' : 'text-muted'}`}
-            onClick={() => setQuickDemo('ROLE_ADMIN')}
-          >
-            Admin
-          </button>
+        <div className="mb-3">
+          <label className="form-label small fw-bold text-muted d-block text-center">Quick Demo Account Fill</label>
+          <div className="btn-group w-100 p-1 bg-light rounded-3 border">
+            <button 
+              type="button" 
+              className={`btn btn-sm rounded-2 fw-bold ${selectedRole === 'ROLE_CUSTOMER' ? 'btn-white bg-white text-primary shadow-sm' : 'text-muted'}`}
+              onClick={() => setQuickDemo('ROLE_CUSTOMER')}
+            >
+              👤 Customer
+            </button>
+            <button 
+              type="button" 
+              className={`btn btn-sm rounded-2 fw-bold ${selectedRole === 'ROLE_PROVIDER' ? 'btn-white bg-white text-primary shadow-sm' : 'text-muted'}`}
+              onClick={() => setQuickDemo('ROLE_PROVIDER')}
+            >
+              🔧 Provider
+            </button>
+            <button 
+              type="button" 
+              className={`btn btn-sm rounded-2 fw-bold ${selectedRole === 'ROLE_ADMIN' ? 'btn-white bg-white text-primary shadow-sm' : 'text-muted'}`}
+              onClick={() => setQuickDemo('ROLE_ADMIN')}
+            >
+              🛡️ Admin
+            </button>
+          </div>
         </div>
+
+        {errorMsg && (
+          <div className="alert alert-danger border-0 bg-danger bg-opacity-10 text-danger p-3 rounded-3 mb-4 d-flex align-items-start gap-2 small">
+            <AlertCircle size={18} className="shrink-0 mt-0.5" />
+            <div>
+              <strong>Login Error:</strong> {errorMsg}
+            </div>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
@@ -77,6 +101,7 @@ export default function Login({ setCurrentPage, setCurrentRole, setUser }) {
               <input 
                 type="email" 
                 className="form-control border-start-0 py-2" 
+                placeholder="name@fixmate.com"
                 value={email} 
                 onChange={(e) => setEmail(e.target.value)} 
                 required 
@@ -91,6 +116,7 @@ export default function Login({ setCurrentPage, setCurrentRole, setUser }) {
               <input 
                 type="password" 
                 className="form-control border-start-0 py-2" 
+                placeholder="••••••••"
                 value={password} 
                 onChange={(e) => setPassword(e.target.value)} 
                 required 
@@ -98,8 +124,12 @@ export default function Login({ setCurrentPage, setCurrentRole, setUser }) {
             </div>
           </div>
 
-          <button type="submit" className="btn btn-fixmate-primary w-100 py-2.5 fw-bold mb-3" disabled={loading}>
-            {loading ? 'Authenticating with Spring Security...' : 'Sign In'} <ArrowRight size={16} className="ms-1 d-inline" />
+          <button type="submit" className="btn btn-fixmate-primary w-100 py-2.5 fw-bold mb-3 shadow-sm" disabled={loading}>
+            {loading ? (
+              <span><span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Authenticating...</span>
+            ) : (
+              <span>Sign In <ArrowRight size={16} className="ms-1 d-inline" /></span>
+            )}
           </button>
         </form>
 

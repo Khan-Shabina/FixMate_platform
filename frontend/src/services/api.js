@@ -11,18 +11,44 @@ export const apiService = {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
       });
-      if (res.ok) return await res.json();
+      const data = await res.json();
+      if (res.ok) {
+        return { success: true, user: data };
+      } else {
+        return { success: false, error: data.message || 'Invalid email or password' };
+      }
     } catch (e) {
-      console.warn('Backend server offline, returning mock auth data');
+      console.warn('Backend server offline, using client auth simulation');
+      if (email === 'customer@fixmate.com' && password === 'password123') {
+        return {
+          success: true,
+          user: { accessToken: 'mock_jwt_token_123', userId: 1, name: 'Sumit Shelar', email, role: 'ROLE_CUSTOMER' }
+        };
+      } else if (email === 'rahul.provider@fixmate.com' && password === 'password123') {
+        return {
+          success: true,
+          user: { accessToken: 'mock_jwt_token_123', userId: 3, name: 'Rahul Sharma', email, role: 'ROLE_PROVIDER' }
+        };
+      } else if (email === 'admin@fixmate.com' && password === 'password123') {
+        return {
+          success: true,
+          user: { accessToken: 'mock_jwt_token_123', userId: 6, name: 'Admin System', email, role: 'ROLE_ADMIN' }
+        };
+      } else if (password === 'password123') {
+        return {
+          success: true,
+          user: {
+            accessToken: 'mock_jwt_token_123',
+            userId: Date.now(),
+            name: email.split('@')[0],
+            email,
+            role: email.includes('admin') ? 'ROLE_ADMIN' : email.includes('provider') ? 'ROLE_PROVIDER' : 'ROLE_CUSTOMER'
+          }
+        };
+      } else {
+        return { success: false, error: 'Invalid email or password. Hint: Default password is password123' };
+      }
     }
-    // Fallback Mock User Login
-    return {
-      accessToken: 'mock_jwt_token_123',
-      userId: 1,
-      name: email.includes('admin') ? 'Admin System' : email.includes('provider') ? 'Rahul Sharma' : 'Sumit Shelar',
-      email: email,
-      role: email.includes('admin') ? 'ROLE_ADMIN' : email.includes('provider') ? 'ROLE_PROVIDER' : 'ROLE_CUSTOMER'
-    };
   },
 
   register: async (userData) => {
@@ -32,17 +58,25 @@ export const apiService = {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(userData)
       });
-      if (res.ok) return await res.json();
+      const data = await res.json();
+      if (res.ok) {
+        return { success: true, user: data };
+      } else {
+        return { success: false, error: data.message || 'Registration failed' };
+      }
     } catch (e) {
-      console.warn('Backend server offline, returning mock registration response');
+      console.warn('Backend server offline, using client registration simulation');
+      return {
+        success: true,
+        user: {
+          accessToken: 'mock_jwt_token_new',
+          userId: Date.now(),
+          name: userData.name,
+          email: userData.email,
+          role: userData.role || 'ROLE_CUSTOMER'
+        }
+      };
     }
-    return {
-      accessToken: 'mock_jwt_token_new',
-      userId: Date.now(),
-      name: userData.name,
-      email: userData.email,
-      role: userData.role || 'ROLE_CUSTOMER'
-    };
   },
 
   // Services

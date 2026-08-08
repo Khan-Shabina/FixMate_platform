@@ -1,7 +1,7 @@
 import React from 'react';
-import { ShieldCheck, Zap, UserCheck, Calendar, Users, Wrench, LayoutDashboard } from 'lucide-react';
+import { ShieldCheck, Zap, UserCheck, Calendar, Users, Wrench, LayoutDashboard, LogOut } from 'lucide-react';
 
-export default function Navbar({ currentPage, setCurrentPage, currentRole, setCurrentRole, onOpenEmergency, user }) {
+export default function Navbar({ currentPage, setCurrentPage, currentRole, setCurrentRole, onOpenEmergency, user, onLogout }) {
   return (
     <nav className="navbar navbar-expand-lg sticky-top bg-white border-bottom shadow-sm py-2">
       <div className="container">
@@ -128,9 +128,17 @@ export default function Navbar({ currentPage, setCurrentPage, currentRole, setCu
                   <UserCheck size={16} className="me-1" /> {user.name}
                 </button>
                 <ul className="dropdown-menu dropdown-menu-end shadow border-0">
-                  <li><button className="dropdown-item" onClick={() => setCurrentPage(currentRole === 'ROLE_PROVIDER' ? 'provider-dashboard' : 'customer-dashboard')}>Dashboard</button></li>
+                  <li>
+                    <button className="dropdown-item py-2 fw-medium" onClick={() => setCurrentPage(currentRole === 'ROLE_PROVIDER' ? 'provider-dashboard' : currentRole === 'ROLE_ADMIN' ? 'admin-dashboard' : 'customer-dashboard')}>
+                      <LayoutDashboard size={14} className="me-2 text-muted" /> Dashboard
+                    </button>
+                  </li>
                   <li><hr className="dropdown-divider" /></li>
-                  <li><button className="dropdown-item text-danger" onClick={() => window.location.reload()}>Logout</button></li>
+                  <li>
+                    <button className="dropdown-item text-danger py-2 fw-medium" onClick={onLogout}>
+                      <LogOut size={14} className="me-2" /> Logout
+                    </button>
+                  </li>
                 </ul>
               </div>
             ) : (

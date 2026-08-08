@@ -32,26 +32,28 @@ public class AuthController {
         Optional<User> userOptional = userRepository.findByEmail(request.getEmail());
         if (userOptional.isPresent()) {
             User user = userOptional.get();
-            String dummyToken = "eyJhbGciOiJIUzI1NiJ9." + user.getEmail() + ".fixmate_token";
-            JwtAuthResponse response = new JwtAuthResponse(
-                dummyToken, "Bearer", user.getUserId(), user.getName(), user.getEmail(), user.getRole()
-            );
-            return ResponseEntity.ok(response);
+            if (passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+                String dummyToken = "eyJhbGciOiJIUzI1NiJ9." + user.getEmail() + ".fixmate_token";
+                JwtAuthResponse response = new JwtAuthResponse(
+                    dummyToken, "Bearer", user.getUserId(), user.getName(), user.getEmail(), user.getRole()
+                );
+                return ResponseEntity.ok(response);
+            }
         }
-        return ResponseEntity.status(401).body("Invalid email or password");
+        return ResponseEntity.status(401).body(java.util.Map.of("message", "Invalid email or password. Please check your credentials."));
     }
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
-            return ResponseEntity.badRequest().body("Email already registered!");
+            return ResponseEntity.badRequest().body(java.util.Map.of("message", "Email address is already registered!"));
         }
 
         User user = new User();
         user.setName(request.getName());
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setPhone(request.getPhone());
+        user.setPhone(request.getPhone() != null ? request.getPhone() : "+91 9000000000");
         user.setRole(request.getRole() != null ? request.getRole() : "ROLE_CUSTOMER");
 
         User savedUser = userRepository.save(user);
