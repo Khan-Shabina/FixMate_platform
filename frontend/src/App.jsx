@@ -3,11 +3,12 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import EmergencyModal from './components/EmergencyModal';
 
-// 15 Pages Imports
+// Pages Imports
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Services from './pages/Services';
+import Providers from './pages/Providers';
 import ProviderProfile from './pages/ProviderProfile';
 import Booking from './pages/Booking';
 import BookingTracking from './pages/BookingTracking';
@@ -22,17 +23,42 @@ import ProviderVerification from './pages/ProviderVerification';
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState('home');
-  const [currentRole, setCurrentRole] = useState('ROLE_CUSTOMER'); // ROLE_CUSTOMER, ROLE_PROVIDER, ROLE_ADMIN
-  const [user, setUser] = useState({
-    name: 'Sumit Shelar',
-    email: 'customer@fixmate.com',
-    role: 'ROLE_CUSTOMER'
+  const [currentRole, setCurrentRole] = useState(() => {
+    return localStorage.getItem('fixmate_role') || 'ROLE_CUSTOMER';
+  });
+
+  const [user, setUser] = useState(() => {
+    const saved = localStorage.getItem('fixmate_user');
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) {}
+    }
+    // Default initial session demo user
+    return {
+      name: 'Sumit Shelar',
+      email: 'customer@fixmate.com',
+      role: 'ROLE_CUSTOMER'
+    };
   });
 
   const [selectedService, setSelectedService] = useState(null);
   const [selectedProvider, setSelectedProvider] = useState(null);
   const [trackedBooking, setTrackedBooking] = useState(null);
   const [emergencyModalOpen, setEmergencyModalOpen] = useState(false);
+
+  // Sync state changes with localStorage
+  const handleUserLogin = (userData) => {
+    setUser(userData);
+    setCurrentRole(userData.role);
+    localStorage.setItem('fixmate_user', JSON.stringify(userData));
+    localStorage.setItem('fixmate_role', userData.role);
+  };
+
+  const handleLogout = () => {
+    setUser(null);
+    localStorage.removeItem('fixmate_user');
+    localStorage.removeItem('fixmate_role');
+    setCurrentPage('login');
+  };
 
   // Scroll to top on page switch
   useEffect(() => {
@@ -52,13 +78,16 @@ export default function App() {
         );
 
       case 'login':
-        return <Login setCurrentPage={setCurrentPage} setCurrentRole={setCurrentRole} setUser={setUser} />;
+        return <Login setCurrentPage={setCurrentPage} setCurrentRole={setCurrentRole} setUser={handleUserLogin} />;
 
       case 'register':
-        return <Register setCurrentPage={setCurrentPage} setCurrentRole={setCurrentRole} setUser={setUser} />;
+        return <Register setCurrentPage={setCurrentPage} setCurrentRole={setCurrentRole} setUser={handleUserLogin} />;
 
       case 'services':
         return <Services setCurrentPage={setCurrentPage} setSelectedService={setSelectedService} />;
+
+      case 'providers':
+        return <Providers setCurrentPage={setCurrentPage} setSelectedProvider={setSelectedProvider} />;
 
       case 'provider-profile':
         return (
@@ -88,6 +117,7 @@ export default function App() {
             setCurrentPage={setCurrentPage} 
             setTrackedBooking={setTrackedBooking}
             onOpenEmergency={() => setEmergencyModalOpen(true)}
+            user={user}
           />
         );
 
@@ -98,7 +128,7 @@ export default function App() {
         return <CommunityBooking setCurrentPage={setCurrentPage} />;
 
       case 'provider-dashboard':
-        return <ProviderDashboard setCurrentPage={setCurrentPage} />;
+        return <ProviderDashboard setCurrentPage={setCurrentPage} user={user} />;
 
       case 'manage-services':
         return <ManageServices setCurrentPage={setCurrentPage} />;
@@ -126,6 +156,7 @@ export default function App() {
         setCurrentRole={setCurrentRole}
         onOpenEmergency={() => setEmergencyModalOpen(true)}
         user={user}
+        onLogout={handleLogout}
       />
 
       <main className="flex-grow-1">
