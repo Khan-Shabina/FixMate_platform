@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { Lock, Mail, Wrench, ArrowRight, AlertCircle, CheckCircle } from 'lucide-react';
 import { apiService } from '../services/api';
 
-export default function Login({ setCurrentPage, setCurrentRole, setUser }) {
-  const [email, setEmail] = useState('customer@fixmate.com');
-  const [password, setPassword] = useState('password123');
+export default function Login({ setCurrentPage, setUser }) {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [selectedRole, setSelectedRole] = useState('ROLE_CUSTOMER');
   const [errorMsg, setErrorMsg] = useState('');
   const [loading, setLoading] = useState(false);
@@ -19,7 +19,6 @@ export default function Login({ setCurrentPage, setCurrentRole, setUser }) {
 
     if (result.success && result.user) {
       setUser(result.user);
-      setCurrentRole(result.user.role);
       if (result.user.role === 'ROLE_PROVIDER') setCurrentPage('provider-dashboard');
       else if (result.user.role === 'ROLE_ADMIN') setCurrentPage('admin-dashboard');
       else setCurrentPage('customer-dashboard');
