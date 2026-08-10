@@ -8,7 +8,7 @@ import java.util.Optional;
 
 @Repository
 public interface ProviderRepository extends JpaRepository<Provider, Long> {
-    Optional<Provider> findByUserId(Long userId);
+    Optional<Provider> findByUser_UserId(Long userId);
     List<Provider> findByVerificationStatus(String verificationStatus);
     List<Provider> findByIsAvailable(Boolean isAvailable);
 }
