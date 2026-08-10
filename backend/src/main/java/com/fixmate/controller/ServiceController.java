@@ -1,8 +1,10 @@
 package com.fixmate.controller;
 
-import com.fixmate.entity.ServiceEntity;
-import com.fixmate.repository.ServiceRepository;
+import com.fixmate.dto.ServiceDTO;
+import com.fixmate.service.ServiceService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,20 +16,21 @@ import java.util.List;
 public class ServiceController {
 
     @Autowired
-    private ServiceRepository serviceRepository;
+    private ServiceService serviceService;
 
     @GetMapping
-    public ResponseEntity<List<ServiceEntity>> getAllServices() {
-        return ResponseEntity.ok(serviceRepository.findAll());
+    public ResponseEntity<List<ServiceDTO>> getAllServices() {
+        return ResponseEntity.ok(serviceService.getAllServices());
     }
 
     @GetMapping("/category/{category}")
-    public ResponseEntity<List<ServiceEntity>> getByCategory(@PathVariable String category) {
-        return ResponseEntity.ok(serviceRepository.findByCategory(category));
+    public ResponseEntity<List<ServiceDTO>> getByCategory(@PathVariable String category) {
+        return ResponseEntity.ok(serviceService.getServicesByCategory(category));
     }
 
     @PostMapping
-    public ResponseEntity<ServiceEntity> addService(@RequestBody ServiceEntity service) {
-        return ResponseEntity.ok(serviceRepository.save(service));
+    public ResponseEntity<ServiceDTO> addService(@Valid @RequestBody ServiceDTO serviceDTO) {
+        ServiceDTO createdService = serviceService.createService(serviceDTO);
+        return new ResponseEntity<>(createdService, HttpStatus.CREATED);
     }
 }
