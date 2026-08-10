@@ -161,14 +161,15 @@ export default function Navbar({
                       : 'text-secondary'
                     }`}
                   onClick={() => {
-                    if (currentRole === 'ROLE_PROVIDER') {
-                      setCurrentPage('provider-dashboard');
-                    } else if (currentRole === 'ROLE_ADMIN') {
-                      setCurrentPage('admin-dashboard');
-                    } else {
-                      setCurrentPage('customer-dashboard');
-                    }
-                  }}
+                  const role = user?.role;
+                  if (role === 'ROLE_PROVIDER' || role === 'PROVIDER') {
+                    setCurrentPage('provider-dashboard');
+                  } else if (role === 'ROLE_ADMIN' || role === 'ADMIN') {
+                    setCurrentPage('admin-dashboard');
+                  } else {
+                    setCurrentPage('customer-dashboard');
+                  }
+                }}
                 >
                   <LayoutDashboard
                     size={15}

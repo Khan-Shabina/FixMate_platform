@@ -149,31 +149,31 @@ export default function App() {
         return <CommunityBooking setCurrentPage={setCurrentPage} />;
 
       case 'provider-dashboard':
-        if (!user || (user.role !== 'ROLE_PROVIDER' && user.role !== 'ROLE_ADMIN')) {
+        if (!user || (user.role !== 'ROLE_PROVIDER' && user.role !== 'PROVIDER' && user.role !== 'ROLE_ADMIN' && user.role !== 'ADMIN')) {
           return renderAccessDenied('ROLE_PROVIDER');
         }
         return <ProviderDashboard setCurrentPage={setCurrentPage} user={user} />;
 
       case 'manage-services':
-        if (!user || (user.role !== 'ROLE_PROVIDER' && user.role !== 'ROLE_ADMIN')) {
+        if (!user || (user.role !== 'ROLE_PROVIDER' && user.role !== 'PROVIDER' && user.role !== 'ROLE_ADMIN' && user.role !== 'ADMIN')) {
           return renderAccessDenied('ROLE_PROVIDER');
         }
         return <ManageServices setCurrentPage={setCurrentPage} />;
 
       case 'provider-bookings':
-        if (!user || (user.role !== 'ROLE_PROVIDER' && user.role !== 'ROLE_ADMIN')) {
+        if (!user || (user.role !== 'ROLE_PROVIDER' && user.role !== 'PROVIDER' && user.role !== 'ROLE_ADMIN' && user.role !== 'ADMIN')) {
           return renderAccessDenied('ROLE_PROVIDER');
         }
         return <ProviderBookingMgmt setCurrentPage={setCurrentPage} />;
 
       case 'admin-dashboard':
-        if (!user || user.role !== 'ROLE_ADMIN') {
+        if (!user || (user.role !== 'ROLE_ADMIN' && user.role !== 'ADMIN')) {
           return renderAccessDenied('ROLE_ADMIN');
         }
-        return <AdminDashboard setCurrentPage={setCurrentPage} />;
+        return <AdminDashboard setCurrentPage={setCurrentPage} user={user} />;
 
       case 'provider-verification':
-        if (!user || user.role !== 'ROLE_ADMIN') {
+        if (!user || (user.role !== 'ROLE_ADMIN' && user.role !== 'ADMIN')) {
           return renderAccessDenied('ROLE_ADMIN');
         }
         return <ProviderVerification setCurrentPage={setCurrentPage} />;

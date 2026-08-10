@@ -19,8 +19,9 @@ export default function Login({ setCurrentPage, setUser }) {
 
     if (result.success && result.user) {
       setUser(result.user);
-      if (result.user.role === 'ROLE_PROVIDER') setCurrentPage('provider-dashboard');
-      else if (result.user.role === 'ROLE_ADMIN') setCurrentPage('admin-dashboard');
+      const role = result.user.role;
+      if (role === 'ROLE_PROVIDER' || role === 'PROVIDER') setCurrentPage('provider-dashboard');
+      else if (role === 'ROLE_ADMIN' || role === 'ADMIN') setCurrentPage('admin-dashboard');
       else setCurrentPage('customer-dashboard');
     } else {
       setErrorMsg(result.error || 'Authentication failed. Please try again.');
