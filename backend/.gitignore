@@ -1,0 +1,15 @@
+# Environment / secrets
+src/main/resources/application.properties
+src/main/resources/application-*.properties
+
+# Build
+target/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
