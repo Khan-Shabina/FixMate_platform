@@ -2,8 +2,16 @@ import { mockServices, mockProviders, mockBookings, mockReminders, mockSocietyBo
 
 const BASE_URL = 'http://localhost:8080/api';
 
+const getAuthHeaders = () => {
+  const token = localStorage.getItem('fixmate_token');
+  return {
+    'Content-Type': 'application/json',
+    ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+  };
+};
+
 export const apiService = {
-  // Authentication
+  // Authentication - Login
   login: async (email, password) => {
     try {
       const res = await fetch(`${BASE_URL}/auth/login`, {
@@ -13,44 +21,20 @@ export const apiService = {
       });
       const data = await res.json();
       if (res.ok) {
+        if (data.accessToken) {
+          localStorage.setItem('fixmate_token', data.accessToken);
+        }
         return { success: true, user: data };
       } else {
         return { success: false, error: data.message || 'Invalid email or password' };
       }
     } catch (e) {
-      console.warn('Backend server offline, using client auth simulation');
-      if (email === 'customer@fixmate.com' && password === 'password123') {
-        return {
-          success: true,
-          user: { accessToken: 'mock_jwt_token_123', userId: 1, name: 'Sumit Shelar', email, role: 'ROLE_CUSTOMER' }
-        };
-      } else if (email === 'rahul.provider@fixmate.com' && password === 'password123') {
-        return {
-          success: true,
-          user: { accessToken: 'mock_jwt_token_123', userId: 3, name: 'Rahul Sharma', email, role: 'ROLE_PROVIDER' }
-        };
-      } else if (email === 'admin@fixmate.com' && password === 'password123') {
-        return {
-          success: true,
-          user: { accessToken: 'mock_jwt_token_123', userId: 6, name: 'Admin System', email, role: 'ROLE_ADMIN' }
-        };
-      } else if (password === 'password123') {
-        return {
-          success: true,
-          user: {
-            accessToken: 'mock_jwt_token_123',
-            userId: Date.now(),
-            name: email.split('@')[0],
-            email,
-            role: email.includes('admin') ? 'ROLE_ADMIN' : email.includes('provider') ? 'ROLE_PROVIDER' : 'ROLE_CUSTOMER'
-          }
-        };
-      } else {
-        return { success: false, error: 'Invalid email or password. Hint: Default password is password123' };
-      }
+      console.warn('Backend server offline or unreachable. Please ensure Spring Boot is running on port 8080.');
+      return { success: false, error: 'Could not connect to backend server on port 8080. Please start the Spring Boot app.' };
     }
   },
 
+  // Authentication - Register
   register: async (userData) => {
     try {
       const res = await fetch(`${BASE_URL}/auth/register`, {
@@ -60,29 +44,39 @@ export const apiService = {
       });
       const data = await res.json();
       if (res.ok) {
+        if (data.accessToken) {
+          localStorage.setItem('fixmate_token', data.accessToken);
+        }
         return { success: true, user: data };
       } else {
-        return { success: false, error: data.message || 'Registration failed' };
+        const errorMsg = data.errors ? Object.values(data.errors).join(', ') : (data.message || 'Registration failed');
+        return { success: false, error: errorMsg };
       }
     } catch (e) {
-      console.warn('Backend server offline, using client registration simulation');
-      return {
-        success: true,
-        user: {
-          accessToken: 'mock_jwt_token_new',
-          userId: Date.now(),
-          name: userData.name,
-          email: userData.email,
-          role: userData.role || 'ROLE_CUSTOMER'
-        }
-      };
+      console.warn('Backend server offline or unreachable. Please ensure Spring Boot is running on port 8080.');
+      return { success: false, error: 'Could not connect to backend server on port 8080. Please start the Spring Boot app.' };
     }
+  },
+
+  // Get Current User Profile
+  getCurrentUser: async () => {
+    try {
+      const res = await fetch(`${BASE_URL}/users/me`, {
+        headers: getAuthHeaders()
+      });
+      if (res.ok) return await res.json();
+    } catch (e) {
+      console.warn('Backend offline');
+    }
+    return null;
   },
 
   // Services
   getServices: async () => {
     try {
-      const res = await fetch(`${BASE_URL}/services`);
+      const res = await fetch(`${BASE_URL}/services`, {
+        headers: getAuthHeaders()
+      });
       if (res.ok) return await res.json();
     } catch (e) {
       console.warn('Backend offline, returning mock services');
@@ -93,7 +87,9 @@ export const apiService = {
   // Providers
   getProviders: async () => {
     try {
-      const res = await fetch(`${BASE_URL}/providers`);
+      const res = await fetch(`${BASE_URL}/providers`, {
+        headers: getAuthHeaders()
+      });
       if (res.ok) return await res.json();
     } catch (e) {
       console.warn('Backend offline, returning mock providers');
@@ -106,7 +102,7 @@ export const apiService = {
     try {
       const res = await fetch(`${BASE_URL}/bookings`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(),
         body: JSON.stringify(bookingData)
       });
       if (res.ok) return await res.json();

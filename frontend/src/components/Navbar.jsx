@@ -7,15 +7,13 @@ import {
   Calendar,
   Users,
   LayoutDashboard,
-  LogOut,
-  Wrench
+  LogOut
 } from 'lucide-react';
 
 export default function Navbar({
   currentPage,
   setCurrentPage,
   currentRole,
-  setCurrentRole,
   onOpenEmergency,
   user,
   onLogout
@@ -155,29 +153,32 @@ export default function Navbar({
             )}
 
             {/* Dashboard */}
-            <li className="nav-item">
-              <button
-                className={`nav-link text-nowrap border-0 bg-transparent px-2 d-flex align-items-center ${currentPage.includes('dashboard')
-                    ? 'text-primary active fw-bold'
-                    : 'text-secondary'
-                  }`}
-                onClick={() => {
-                  if (currentRole === 'ROLE_PROVIDER') {
+            {user && (
+              <li className="nav-item">
+                <button
+                  className={`nav-link text-nowrap border-0 bg-transparent px-2 d-flex align-items-center ${currentPage.includes('dashboard')
+                      ? 'text-primary active fw-bold'
+                      : 'text-secondary'
+                    }`}
+                  onClick={() => {
+                  const role = user?.role;
+                  if (role === 'ROLE_PROVIDER' || role === 'PROVIDER') {
                     setCurrentPage('provider-dashboard');
-                  } else if (currentRole === 'ROLE_ADMIN') {
+                  } else if (role === 'ROLE_ADMIN' || role === 'ADMIN') {
                     setCurrentPage('admin-dashboard');
                   } else {
                     setCurrentPage('customer-dashboard');
                   }
                 }}
-              >
-                <LayoutDashboard
-                  size={15}
-                  className="me-1 flex-shrink-0"
-                />
-                Dashboard
-              </button>
-            </li>
+                >
+                  <LayoutDashboard
+                    size={15}
+                    className="me-1 flex-shrink-0"
+                  />
+                  Dashboard
+                </button>
+              </li>
+            )}
           </ul>
 
           {/* Right Action Bar */}
@@ -192,64 +193,14 @@ export default function Navbar({
               24/7 Emergency
             </button>
 
-            {/* Role Selector */}
-            <div className="dropdown">
-              <button
-                className="btn btn-outline-secondary dropdown-toggle btn-sm rounded-pill px-3 fw-semibold text-nowrap"
-                type="button"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-              >
-                Role:{' '}
-                {currentRole === 'ROLE_ADMIN'
-                  ? 'Admin'
-                  : currentRole === 'ROLE_PROVIDER'
-                    ? 'Provider'
-                    : 'Customer'}
-              </button>
+            {/* Role Badge for Logged In User */}
+            {user && (
+              <span className="badge bg-light text-dark border rounded-pill px-3 py-2 fw-semibold text-nowrap">
+                Role: {user.role === 'ROLE_ADMIN' ? '🛡️ Admin' : user.role === 'ROLE_PROVIDER' ? '🔧 Provider' : '👤 Customer'}
+              </span>
+            )}
 
-              <ul className="dropdown-menu dropdown-menu-end shadow border-0">
-
-                <li>
-                  <button
-                    className="dropdown-item py-2 fw-medium"
-                    onClick={() => {
-                      setCurrentRole('ROLE_CUSTOMER');
-                      setCurrentPage('customer-dashboard');
-                    }}
-                  >
-                    👤 Customer View
-                  </button>
-                </li>
-
-                <li>
-                  <button
-                    className="dropdown-item py-2 fw-medium"
-                    onClick={() => {
-                      setCurrentRole('ROLE_PROVIDER');
-                      setCurrentPage('provider-dashboard');
-                    }}
-                  >
-                    🔧 Service Provider View
-                  </button>
-                </li>
-
-                <li>
-                  <button
-                    className="dropdown-item py-2 fw-medium"
-                    onClick={() => {
-                      setCurrentRole('ROLE_ADMIN');
-                      setCurrentPage('admin-dashboard');
-                    }}
-                  >
-                    🛡️ Admin Control Panel
-                  </button>
-                </li>
-
-              </ul>
-            </div>
-
-            {/* User / Authentication */}
+            {/* User Dropdown or Login / Register */}
             {user ? (
               <div className="dropdown">
 

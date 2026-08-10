@@ -2,7 +2,7 @@ import React from 'react';
 import { Users, ShieldCheck, CheckCircle2, DollarSign, Activity, FileText } from 'lucide-react';
 import { mockProviders, mockBookings } from '../data/mockData';
 
-export default function AdminDashboard({ setCurrentPage }) {
+export default function AdminDashboard({ setCurrentPage, user }) {
   return (
     <div className="container py-5">
       {/* Header */}
@@ -10,7 +10,7 @@ export default function AdminDashboard({ setCurrentPage }) {
         <div className="row align-items-center">
           <div className="col-md-8">
             <span className="badge bg-danger text-white fw-bold mb-2">Admin Control Center</span>
-            <h2 className="fw-extrabold text-white mb-1">Platform Analytics Overview</h2>
+            <h2 className="fw-extrabold text-white mb-1">Welcome, {user?.name || 'Admin'} 👋</h2>
             <p className="text-light opacity-75 mb-0">System monitor for active customers, verified service providers, and platform bookings.</p>
           </div>
           <div className="col-md-4 text-md-end mt-3 mt-md-0">

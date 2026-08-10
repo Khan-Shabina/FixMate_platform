@@ -20,43 +20,45 @@ import ManageServices from './pages/ManageServices';
 import ProviderBookingMgmt from './pages/ProviderBookingMgmt';
 import AdminDashboard from './pages/AdminDashboard';
 import ProviderVerification from './pages/ProviderVerification';
+import { ShieldAlert } from 'lucide-react';
 
 export default function App() {
-  const [currentPage, setCurrentPage] = useState('home');
-  const [currentRole, setCurrentRole] = useState(() => {
-    return localStorage.getItem('fixmate_role') || 'ROLE_CUSTOMER';
-  });
-
   const [user, setUser] = useState(() => {
     const saved = localStorage.getItem('fixmate_user');
     if (saved) {
       try { return JSON.parse(saved); } catch (e) {}
     }
-    // Default initial session demo user
-    return {
-      name: 'Sumit Shelar',
-      email: 'customer@fixmate.com',
-      role: 'ROLE_CUSTOMER'
-    };
+    return null; // Unauthenticated by default - requires login or register
   });
+
+  const [currentPage, setCurrentPage] = useState(() => {
+    const savedUser = localStorage.getItem('fixmate_user');
+    return savedUser ? 'home' : 'login'; // Default to login if not authenticated
+  });
+
+  const currentRole = user ? user.role : 'ROLE_CUSTOMER';
 
   const [selectedService, setSelectedService] = useState(null);
   const [selectedProvider, setSelectedProvider] = useState(null);
   const [trackedBooking, setTrackedBooking] = useState(null);
   const [emergencyModalOpen, setEmergencyModalOpen] = useState(false);
 
-  // Sync state changes with localStorage
+  // Handle User Login
   const handleUserLogin = (userData) => {
     setUser(userData);
-    setCurrentRole(userData.role);
     localStorage.setItem('fixmate_user', JSON.stringify(userData));
     localStorage.setItem('fixmate_role', userData.role);
+    if (userData.accessToken) {
+      localStorage.setItem('fixmate_token', userData.accessToken);
+    }
   };
 
+  // Immediate Logout Handler (clears state & storage, redirects to login page without refresh)
   const handleLogout = () => {
     setUser(null);
     localStorage.removeItem('fixmate_user');
     localStorage.removeItem('fixmate_role');
+    localStorage.removeItem('fixmate_token');
     setCurrentPage('login');
   };
 
@@ -64,6 +66,22 @@ export default function App() {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [currentPage]);
+
+  // Access Denied / Protected Route Banner
+  const renderAccessDenied = (requiredRole) => (
+    <div className="container py-5 text-center my-5">
+      <div className="card shadow border-0 p-5 mx-auto" style={{ maxWidth: '500px' }}>
+        <ShieldAlert size={60} className="text-danger mx-auto mb-3" />
+        <h3 className="fw-bold text-dark mb-2">Access Denied</h3>
+        <p className="text-muted mb-4">
+          You do not have permission to view this page. Required Role: <strong>{requiredRole}</strong>.
+        </p>
+        <button className="btn btn-fixmate-primary fw-bold px-4 rounded-pill" onClick={() => setCurrentPage(user ? 'home' : 'login')}>
+          {user ? 'Return to Home' : 'Sign In Now'}
+        </button>
+      </div>
+    </div>
+  );
 
   const renderPage = () => {
     switch (currentPage) {
@@ -78,10 +96,10 @@ export default function App() {
         );
 
       case 'login':
-        return <Login setCurrentPage={setCurrentPage} setCurrentRole={setCurrentRole} setUser={handleUserLogin} />;
+        return <Login setCurrentPage={setCurrentPage} setUser={handleUserLogin} />;
 
       case 'register':
-        return <Register setCurrentPage={setCurrentPage} setCurrentRole={setCurrentRole} setUser={handleUserLogin} />;
+        return <Register setCurrentPage={setCurrentPage} setUser={handleUserLogin} />;
 
       case 'services':
         return <Services setCurrentPage={setCurrentPage} setSelectedService={setSelectedService} />;
@@ -99,6 +117,7 @@ export default function App() {
         );
 
       case 'booking':
+        if (!user) return <Login setCurrentPage={setCurrentPage} setUser={handleUserLogin} />;
         return (
           <Booking 
             selectedService={selectedService} 
@@ -109,9 +128,11 @@ export default function App() {
         );
 
       case 'tracking':
+        if (!user) return <Login setCurrentPage={setCurrentPage} setUser={handleUserLogin} />;
         return <BookingTracking trackedBooking={trackedBooking} setCurrentPage={setCurrentPage} />;
 
       case 'customer-dashboard':
+        if (!user) return <Login setCurrentPage={setCurrentPage} setUser={handleUserLogin} />;
         return (
           <CustomerDashboard 
             setCurrentPage={setCurrentPage} 
@@ -128,18 +149,33 @@ export default function App() {
         return <CommunityBooking setCurrentPage={setCurrentPage} />;
 
       case 'provider-dashboard':
+        if (!user || (user.role !== 'ROLE_PROVIDER' && user.role !== 'PROVIDER' && user.role !== 'ROLE_ADMIN' && user.role !== 'ADMIN')) {
+          return renderAccessDenied('ROLE_PROVIDER');
+        }
         return <ProviderDashboard setCurrentPage={setCurrentPage} user={user} />;
 
       case 'manage-services':
+        if (!user || (user.role !== 'ROLE_PROVIDER' && user.role !== 'PROVIDER' && user.role !== 'ROLE_ADMIN' && user.role !== 'ADMIN')) {
+          return renderAccessDenied('ROLE_PROVIDER');
+        }
         return <ManageServices setCurrentPage={setCurrentPage} />;
 
       case 'provider-bookings':
+        if (!user || (user.role !== 'ROLE_PROVIDER' && user.role !== 'PROVIDER' && user.role !== 'ROLE_ADMIN' && user.role !== 'ADMIN')) {
+          return renderAccessDenied('ROLE_PROVIDER');
+        }
         return <ProviderBookingMgmt setCurrentPage={setCurrentPage} />;
 
       case 'admin-dashboard':
-        return <AdminDashboard setCurrentPage={setCurrentPage} />;
+        if (!user || (user.role !== 'ROLE_ADMIN' && user.role !== 'ADMIN')) {
+          return renderAccessDenied('ROLE_ADMIN');
+        }
+        return <AdminDashboard setCurrentPage={setCurrentPage} user={user} />;
 
       case 'provider-verification':
+        if (!user || (user.role !== 'ROLE_ADMIN' && user.role !== 'ADMIN')) {
+          return renderAccessDenied('ROLE_ADMIN');
+        }
         return <ProviderVerification setCurrentPage={setCurrentPage} />;
 
       default:
@@ -153,7 +189,6 @@ export default function App() {
         currentPage={currentPage}
         setCurrentPage={setCurrentPage}
         currentRole={currentRole}
-        setCurrentRole={setCurrentRole}
         onOpenEmergency={() => setEmergencyModalOpen(true)}
         user={user}
         onLogout={handleLogout}

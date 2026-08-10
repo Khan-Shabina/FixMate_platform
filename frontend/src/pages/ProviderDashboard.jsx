@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { DollarSign, CheckCircle, Star, ShieldCheck, ToggleLeft, ToggleRight, ListCheck, Wrench, Clock } from 'lucide-react';
 import { mockBookings } from '../data/mockData';
 
-export default function ProviderDashboard({ setCurrentPage }) {
+export default function ProviderDashboard({ setCurrentPage, user }) {
   const [available, setAvailable] = useState(true);
 
   return (
@@ -12,7 +12,7 @@ export default function ProviderDashboard({ setCurrentPage }) {
         <div className="row align-items-center">
           <div className="col-md-8">
             <span className="badge bg-info text-dark fw-bold mb-2">Service Provider Portal</span>
-            <h2 className="fw-extrabold text-white mb-1">Rahul Sharma (Master Electrician)</h2>
+            <h2 className="fw-extrabold text-white mb-1">{user?.name || 'Service Provider'}</h2>
             <p className="text-light opacity-75 mb-0">Location: <strong>Andheri East, Mumbai</strong> | Trust Score: <span className="text-warning fw-bold">97%</span></p>
           </div>
 

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { User, Mail, Phone, Lock, Wrench, MapPin, Briefcase, AlertCircle } from 'lucide-react';
 import { apiService } from '../services/api';
 
-export default function Register({ setCurrentPage, setCurrentRole, setUser }) {
+export default function Register({ setCurrentPage, setUser }) {
   const [role, setRole] = useState('ROLE_CUSTOMER');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -25,7 +25,6 @@ export default function Register({ setCurrentPage, setCurrentRole, setUser }) {
 
     if (result.success && result.user) {
       setUser(result.user);
-      setCurrentRole(result.user.role);
       if (result.user.role === 'ROLE_PROVIDER') setCurrentPage('provider-dashboard');
       else setCurrentPage('customer-dashboard');
     } else {

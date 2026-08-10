@@ -3,7 +3,7 @@ import { Calendar, Clock, MapPin, Zap, ShieldCheck, Plus, Bell, Users, CheckCirc
 import BookingCard from '../components/BookingCard';
 import { mockBookings, mockReminders } from '../data/mockData';
 
-export default function CustomerDashboard({ setCurrentPage, setTrackedBooking, onOpenEmergency }) {
+export default function CustomerDashboard({ setCurrentPage, setTrackedBooking, onOpenEmergency, user }) {
   return (
     <div className="container py-5">
       {/* Header Banner */}
@@ -11,7 +11,7 @@ export default function CustomerDashboard({ setCurrentPage, setTrackedBooking, o
         <div className="row align-items-center">
           <div className="col-md-8">
             <span className="badge bg-warning text-dark fw-bold mb-2">Customer Portal</span>
-            <h2 className="fw-extrabold text-white mb-1">Hello, Sumit Shelar 👋</h2>
+            <h2 className="fw-extrabold text-white mb-1">Hello, {user?.name || 'Valued Customer'} 👋</h2>
             <p className="text-light opacity-75 mb-0">Manage your active service bookings, upcoming maintenance reminders, and community society deals.</p>
           </div>
           <div className="col-md-4 text-md-end mt-3 mt-md-0 d-flex gap-2 justify-content-md-end">
