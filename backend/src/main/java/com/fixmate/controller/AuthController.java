@@ -1,17 +1,12 @@
 package com.fixmate.controller;
 
 import com.fixmate.dto.AuthDTOs.*;
-import com.fixmate.entity.Provider;
-import com.fixmate.entity.User;
-import com.fixmate.repository.ProviderRepository;
-import com.fixmate.repository.UserRepository;
+import com.fixmate.service.AuthService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDateTime;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -19,60 +14,17 @@ import java.util.Optional;
 public class AuthController {
 
     @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private ProviderRepository providerRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
-        Optional<User> userOptional = userRepository.findByEmail(request.getEmail());
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
-            if (passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-                String dummyToken = "eyJhbGciOiJIUzI1NiJ9." + user.getEmail() + ".fixmate_token";
-                JwtAuthResponse response = new JwtAuthResponse(
-                    dummyToken, "Bearer", user.getUserId(), user.getName(), user.getEmail(), user.getRole()
-                );
-                return ResponseEntity.ok(response);
-            }
-        }
-        return ResponseEntity.status(401).body(java.util.Map.of("message", "Invalid email or password. Please check your credentials."));
+    public ResponseEntity<JwtAuthResponse> login(@Valid @RequestBody LoginRequest request) {
+        JwtAuthResponse response = authService.login(request);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
-        if (userRepository.existsByEmail(request.getEmail())) {
-            return ResponseEntity.badRequest().body(java.util.Map.of("message", "Email address is already registered!"));
-        }
-
-        User user = new User();
-        user.setName(request.getName());
-        user.setEmail(request.getEmail());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setPhone(request.getPhone() != null ? request.getPhone() : "+91 9000000000");
-        user.setRole(request.getRole() != null ? request.getRole() : "ROLE_CUSTOMER");
-
-        User savedUser = userRepository.save(user);
-
-        if ("ROLE_PROVIDER".equalsIgnoreCase(request.getRole())) {
-            Provider provider = new Provider();
-            provider.setUser(savedUser);
-            provider.setExperience(request.getExperience() != null ? request.getExperience() : "1 Year");
-            provider.setLocation(request.getLocation() != null ? request.getLocation() : "City Center");
-            provider.setVerificationStatus("PENDING");
-            provider.setTrustScore(85);
-            provider.setIsAvailable(true);
-            providerRepository.save(provider);
-        }
-
-        String dummyToken = "eyJhbGciOiJIUzI1NiJ9." + savedUser.getEmail() + ".fixmate_token";
-        JwtAuthResponse response = new JwtAuthResponse(
-            dummyToken, "Bearer", savedUser.getUserId(), savedUser.getName(), savedUser.getEmail(), savedUser.getRole()
-        );
-        return ResponseEntity.ok(response);
+    public ResponseEntity<JwtAuthResponse> register(@Valid @RequestBody RegisterRequest request) {
+        JwtAuthResponse response = authService.register(request);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 }
