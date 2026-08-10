@@ -8,6 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import com.fixmate.entity.ServiceEntity;
+import com.fixmate.repository.ServiceRepository;
+import java.math.BigDecimal;
 
 @Component
 public class DataInitializer implements CommandLineRunner {
@@ -20,6 +23,9 @@ public class DataInitializer implements CommandLineRunner {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private ServiceRepository serviceRepository;
 
     @Override
     public void run(String... args) throws Exception {
@@ -67,5 +73,48 @@ public class DataInitializer implements CommandLineRunner {
             providerRepository.save(provider);
             System.out.println(">>> Seeded default Provider user: rahul.provider@fixmate.com");
         }
+
+        // Seed Services
+        if (serviceRepository.count() == 0) {
+
+            ServiceEntity electrician = new ServiceEntity();
+            electrician.setServiceName("Master Electrical Repair & Wiring");
+            electrician.setDescription(
+                    "Complete home wiring check, short-circuit fixes, switchboard installation."
+            );
+            electrician.setPrice(new BigDecimal("499.00"));
+            electrician.setCategory("Electrician");
+            serviceRepository.save(electrician);
+
+            ServiceEntity plumber = new ServiceEntity();
+            plumber.setServiceName("Emergency Plumbing & Leakage Fix");
+            plumber.setDescription(
+                    "Urgent pipe leak repair, blockages clearance, tap replacement."
+            );
+            plumber.setPrice(new BigDecimal("399.00"));
+            plumber.setCategory("Plumber");
+            serviceRepository.save(plumber);
+
+            ServiceEntity ac = new ServiceEntity();
+            ac.setServiceName("AC Deep Cleaning & Gas Refill");
+            ac.setDescription(
+                    "Filter cleaning, cooling coil wash, gas level inspection and top-up."
+            );
+            ac.setPrice(new BigDecimal("899.00"));
+            ac.setCategory("AC Repair");
+            serviceRepository.save(ac);
+
+            ServiceEntity cleaning = new ServiceEntity();
+            cleaning.setServiceName("Deep Home Cleaning & Sanitization");
+            cleaning.setDescription(
+                    "Full apartment deep cleaning, floor scrubbing, bathroom sanitization."
+            );
+            cleaning.setPrice(new BigDecimal("1499.00"));
+            cleaning.setCategory("Cleaning");
+            serviceRepository.save(cleaning);
+
+            System.out.println(">>> Seeded default services");
+        }
+
     }
 }
