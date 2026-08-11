@@ -92,8 +92,12 @@ export const apiService = {
         body: JSON.stringify(serviceData)
       });
       if (res.ok) return { success: true, data: await res.json() };
-      const data = await res.json();
-      return { success: false, error: data.message || 'Failed to add service' };
+      let errorMsg = 'Failed to add service';
+      try {
+        const data = await res.json();
+        if (data && data.message) errorMsg = data.message;
+      } catch (err) {}
+      return { success: false, error: errorMsg };
     } catch (e) {
       return { success: false, error: 'Network error while adding service' };
     }
@@ -105,9 +109,15 @@ export const apiService = {
         method: 'DELETE',
         headers: getAuthHeaders()
       });
-      if (res.ok || res.status === 204) return { success: true };
-      const data = await res.json();
-      return { success: false, error: data.message || 'Failed to delete service' };
+      if (res.ok || res.status === 204) {
+        return { success: true };
+      }
+      let errorMsg = 'Failed to delete service';
+      try {
+        const data = await res.json();
+        if (data && data.message) errorMsg = data.message;
+      } catch (err) {}
+      return { success: false, error: errorMsg };
     } catch (e) {
       return { success: false, error: 'Network error while deleting service' };
     }

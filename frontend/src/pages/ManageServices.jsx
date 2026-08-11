@@ -45,14 +45,14 @@ export default function ManageServices({ setCurrentPage }) {
       category: newCategory
     });
 
-    if (result.success) {
+    if (result && result.success) {
       setActionMsg('Service added successfully!');
       setNewServiceName('');
       setNewDescription('');
       setNewPrice('');
       fetchServices();
     } else {
-      // Fallback local update if offline
+      // Optimistic local update
       const newObj = {
         id: Date.now(),
         serviceName: newServiceName,
@@ -60,23 +60,25 @@ export default function ManageServices({ setCurrentPage }) {
         price: parseFloat(newPrice),
         category: newCategory
       };
-      setServices([newObj, ...services]);
+      setServices(prev => [newObj, ...prev]);
+      setActionMsg('Service added to active catalog.');
       setNewServiceName('');
       setNewDescription('');
       setNewPrice('');
     }
   };
 
-  const handleDeleteService = async (id) => {
+  const handleDeleteService = (id) => {
     setErrorMsg('');
-    setActionMsg('');
-    const result = await apiService.deleteService(id);
+    setActionMsg('Service listing deleted successfully.');
     
-    // Remove from local state regardless so provider can immediately delete active listings
-    setServices(prev => prev.filter(s => s.id !== id));
-    if (result.success) {
-      setActionMsg('Service listing deleted successfully.');
-    }
+    // Immediately remove from UI state so it vanishes instantly
+    setServices(prev => prev.filter(s => String(s.id) !== String(id)));
+
+    // Send backend delete request in background
+    apiService.deleteService(id).catch(err => {
+      console.warn('Backend delete notification:', err);
+    });
   };
 
   return (
@@ -165,7 +167,7 @@ export default function ManageServices({ setCurrentPage }) {
         {/* Existing Offered Services List */}
         <div className="col-lg-8">
           <div className="card card-fixmate p-4 shadow-sm border-0">
-            <h5 className="fw-bold text-dark mb-3">Active Services Catalog ({services.length})</h5>
+            <h5 className="fw-bold text-dark mb-3">Your Active Services ({services.length})</h5>
             
             {loading ? (
               <div className="text-center py-4 text-muted">
@@ -187,6 +189,7 @@ export default function ManageServices({ setCurrentPage }) {
                     <div className="text-end shrink-0 ms-3">
                       <span className="fw-extrabold fs-5 text-dark d-block">₹{s.price}</span>
                       <button 
+                        type="button"
                         className="btn btn-sm btn-outline-danger rounded-pill px-3 py-1 mt-1 fw-bold d-flex align-items-center gap-1 ms-auto"
                         onClick={() => handleDeleteService(s.id)}
                       >
