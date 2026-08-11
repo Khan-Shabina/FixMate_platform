@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
-import { Lock, Mail, Wrench, ArrowRight, AlertCircle, CheckCircle } from 'lucide-react';
+import { Lock, Mail, Wrench, ArrowRight, AlertCircle } from 'lucide-react';
 import { apiService } from '../services/api';
 
 export default function Login({ setCurrentPage, setUser }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [selectedRole, setSelectedRole] = useState('ROLE_CUSTOMER');
   const [errorMsg, setErrorMsg] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -24,24 +23,7 @@ export default function Login({ setCurrentPage, setUser }) {
       else if (role === 'ROLE_ADMIN' || role === 'ADMIN') setCurrentPage('admin-dashboard');
       else setCurrentPage('customer-dashboard');
     } else {
-      setErrorMsg(result.error || 'Authentication failed. Please try again.');
-    }
-  };
-
-  const setQuickDemo = (role) => {
-    setErrorMsg('');
-    if (role === 'ROLE_CUSTOMER') {
-      setEmail('customer@fixmate.com');
-      setPassword('password123');
-      setSelectedRole('ROLE_CUSTOMER');
-    } else if (role === 'ROLE_PROVIDER') {
-      setEmail('rahul.provider@fixmate.com');
-      setPassword('password123');
-      setSelectedRole('ROLE_PROVIDER');
-    } else {
-      setEmail('admin@fixmate.com');
-      setPassword('password123');
-      setSelectedRole('ROLE_ADMIN');
+      setErrorMsg(result.error || 'Authentication failed. Please check your credentials.');
     }
   };
 
@@ -54,34 +36,6 @@ export default function Login({ setCurrentPage, setUser }) {
           </div>
           <h3 className="fw-extrabold text-dark">Welcome Back</h3>
           <p className="text-muted small">Sign in to manage your bookings and local services</p>
-        </div>
-
-        {/* Role Quick Switcher */}
-        <div className="mb-3">
-          <label className="form-label small fw-bold text-muted d-block text-center">Quick Demo Account Fill</label>
-          <div className="btn-group w-100 p-1 bg-light rounded-3 border">
-            <button 
-              type="button" 
-              className={`btn btn-sm rounded-2 fw-bold ${selectedRole === 'ROLE_CUSTOMER' ? 'btn-white bg-white text-primary shadow-sm' : 'text-muted'}`}
-              onClick={() => setQuickDemo('ROLE_CUSTOMER')}
-            >
-              👤 Customer
-            </button>
-            <button 
-              type="button" 
-              className={`btn btn-sm rounded-2 fw-bold ${selectedRole === 'ROLE_PROVIDER' ? 'btn-white bg-white text-primary shadow-sm' : 'text-muted'}`}
-              onClick={() => setQuickDemo('ROLE_PROVIDER')}
-            >
-              🔧 Provider
-            </button>
-            <button 
-              type="button" 
-              className={`btn btn-sm rounded-2 fw-bold ${selectedRole === 'ROLE_ADMIN' ? 'btn-white bg-white text-primary shadow-sm' : 'text-muted'}`}
-              onClick={() => setQuickDemo('ROLE_ADMIN')}
-            >
-              🛡️ Admin
-            </button>
-          </div>
         </div>
 
         {errorMsg && (

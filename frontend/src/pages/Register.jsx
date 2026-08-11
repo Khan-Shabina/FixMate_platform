@@ -8,8 +8,8 @@ export default function Register({ setCurrentPage, setUser }) {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
-  const [experience, setExperience] = useState('5 Years');
-  const [location, setLocation] = useState('Andheri East, Mumbai');
+  const [experience, setExperience] = useState('');
+  const [location, setLocation] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
   const [loading, setLoading] = useState(false);
 

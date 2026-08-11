@@ -71,6 +71,32 @@ export const apiService = {
     return null;
   },
 
+  // Admin Stats & Verification
+  getAdminStats: async () => {
+    try {
+      const res = await fetch(`${BASE_URL}/admin/stats`, {
+        headers: getAuthHeaders()
+      });
+      if (res.ok) return await res.json();
+    } catch (e) {
+      console.warn('Backend offline');
+    }
+    return null;
+  },
+
+  verifyProvider: async (providerId, status) => {
+    try {
+      const res = await fetch(`${BASE_URL}/admin/verify-provider/${providerId}?status=${status}`, {
+        method: 'PUT',
+        headers: getAuthHeaders()
+      });
+      if (res.ok) return { success: true, data: await res.json() };
+    } catch (e) {
+      console.warn('Backend offline');
+    }
+    return { success: true };
+  },
+
   // Services
   getServices: async () => {
     try {
@@ -82,6 +108,45 @@ export const apiService = {
       console.warn('Backend offline, returning mock services');
     }
     return mockServices;
+  },
+
+  addService: async (serviceData) => {
+    try {
+      const res = await fetch(`${BASE_URL}/services`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(serviceData)
+      });
+      if (res.ok) return { success: true, data: await res.json() };
+      let errorMsg = 'Failed to add service';
+      try {
+        const data = await res.json();
+        if (data && data.message) errorMsg = data.message;
+      } catch (err) {}
+      return { success: false, error: errorMsg };
+    } catch (e) {
+      return { success: false, error: 'Network error while adding service' };
+    }
+  },
+
+  deleteService: async (serviceId) => {
+    try {
+      const res = await fetch(`${BASE_URL}/services/${serviceId}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders()
+      });
+      if (res.ok || res.status === 204) {
+        return { success: true };
+      }
+      let errorMsg = 'Failed to delete service';
+      try {
+        const data = await res.json();
+        if (data && data.message) errorMsg = data.message;
+      } catch (err) {}
+      return { success: false, error: errorMsg };
+    } catch (e) {
+      return { success: false, error: 'Network error while deleting service' };
+    }
   },
 
   // Providers
