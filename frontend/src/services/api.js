@@ -71,6 +71,32 @@ export const apiService = {
     return null;
   },
 
+  // Admin Stats & Verification
+  getAdminStats: async () => {
+    try {
+      const res = await fetch(`${BASE_URL}/admin/stats`, {
+        headers: getAuthHeaders()
+      });
+      if (res.ok) return await res.json();
+    } catch (e) {
+      console.warn('Backend offline');
+    }
+    return null;
+  },
+
+  verifyProvider: async (providerId, status) => {
+    try {
+      const res = await fetch(`${BASE_URL}/admin/verify-provider/${providerId}?status=${status}`, {
+        method: 'PUT',
+        headers: getAuthHeaders()
+      });
+      if (res.ok) return { success: true, data: await res.json() };
+    } catch (e) {
+      console.warn('Backend offline');
+    }
+    return { success: true };
+  },
+
   // Services
   getServices: async () => {
     try {
