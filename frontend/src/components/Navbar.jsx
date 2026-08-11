@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import fixmateLogo from '../assets/fixmate-logo.jpeg';
 
 import {
@@ -18,6 +18,8 @@ export default function Navbar({
   user,
   onLogout
 }) {
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+
   return (
     <nav className="navbar navbar-expand-lg bg-white shadow-sm py-2">
       <div className="container-fluid px-4 d-flex align-items-center">
@@ -161,15 +163,15 @@ export default function Navbar({
                       : 'text-secondary'
                     }`}
                   onClick={() => {
-                  const role = user?.role;
-                  if (role === 'ROLE_PROVIDER' || role === 'PROVIDER') {
-                    setCurrentPage('provider-dashboard');
-                  } else if (role === 'ROLE_ADMIN' || role === 'ADMIN') {
-                    setCurrentPage('admin-dashboard');
-                  } else {
-                    setCurrentPage('customer-dashboard');
-                  }
-                }}
+                    const role = user?.role;
+                    if (role === 'ROLE_PROVIDER' || role === 'PROVIDER') {
+                      setCurrentPage('provider-dashboard');
+                    } else if (role === 'ROLE_ADMIN' || role === 'ADMIN') {
+                      setCurrentPage('admin-dashboard');
+                    } else {
+                      setCurrentPage('customer-dashboard');
+                    }
+                  }}
                 >
                   <LayoutDashboard
                     size={15}
@@ -196,73 +198,66 @@ export default function Navbar({
             {/* Role Badge for Logged In User */}
             {user && (
               <span className="badge bg-light text-dark border rounded-pill px-3 py-2 fw-semibold text-nowrap">
-                Role: {user.role === 'ROLE_ADMIN' ? '🛡️ Admin' : user.role === 'ROLE_PROVIDER' ? '🔧 Provider' : '👤 Customer'}
+                Role: {user.role === 'ROLE_ADMIN' || user.role === 'ADMIN' ? '🛡️ Admin' : user.role === 'ROLE_PROVIDER' || user.role === 'PROVIDER' ? '🔧 Provider' : '👤 Customer'}
               </span>
             )}
 
-            {/* User Dropdown or Login / Register */}
+            {/* User Controls: Immediately Visible Logout + Pure React User Dropdown */}
             {user ? (
-              <div className="dropdown">
+              <div className="d-flex align-items-center gap-2 flex-nowrap">
+                <div className="position-relative">
+                  <button
+                    className="btn btn-fixmate-primary btn-sm rounded-pill px-3 text-nowrap d-flex align-items-center gap-1"
+                    type="button"
+                    onClick={() => setUserMenuOpen(!userMenuOpen)}
+                  >
+                    <UserCheck size={16} />
+                    {user.name}
+                  </button>
 
+                  {userMenuOpen && (
+                    <div 
+                      className="position-absolute end-0 mt-2 bg-white shadow-lg rounded-3 border p-2" 
+                      style={{ minWidth: '180px', zIndex: 1050 }}
+                    >
+                      <button
+                        className="dropdown-item py-2 fw-medium rounded-2 text-start d-flex align-items-center gap-2 w-100 btn border-0"
+                        onClick={() => {
+                          setUserMenuOpen(false);
+                          const role = user?.role;
+                          if (role === 'ROLE_PROVIDER' || role === 'PROVIDER') setCurrentPage('provider-dashboard');
+                          else if (role === 'ROLE_ADMIN' || role === 'ADMIN') setCurrentPage('admin-dashboard');
+                          else setCurrentPage('customer-dashboard');
+                        }}
+                      >
+                        <LayoutDashboard size={14} className="text-muted" /> Dashboard
+                      </button>
+                      <hr className="my-1" />
+                      <button
+                        className="dropdown-item text-danger py-2 fw-medium rounded-2 text-start d-flex align-items-center gap-2 w-100 btn border-0"
+                        onClick={() => {
+                          setUserMenuOpen(false);
+                          onLogout();
+                        }}
+                      >
+                        <LogOut size={14} /> Logout
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Direct Immediately Visible Logout Button */}
                 <button
-                  className="btn btn-fixmate-primary btn-sm rounded-pill px-3 text-nowrap"
-                  type="button"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
+                  className="btn btn-outline-danger btn-sm rounded-pill px-3 fw-bold text-nowrap d-flex align-items-center gap-1"
+                  onClick={onLogout}
+                  title="Logout from Account"
                 >
-                  <UserCheck
-                    size={16}
-                    className="me-1"
-                  />
-                  {user.name}
+                  <LogOut size={14} /> Logout
                 </button>
-
-                <ul className="dropdown-menu dropdown-menu-end shadow border-0">
-
-                  <li>
-                    <button
-                      className="dropdown-item py-2 fw-medium"
-                      onClick={() =>
-                        setCurrentPage(
-                          currentRole === 'ROLE_PROVIDER'
-                            ? 'provider-dashboard'
-                            : currentRole === 'ROLE_ADMIN'
-                              ? 'admin-dashboard'
-                              : 'customer-dashboard'
-                        )
-                      }
-                    >
-                      <LayoutDashboard
-                        size={14}
-                        className="me-2 text-muted"
-                      />
-                      Dashboard
-                    </button>
-                  </li>
-
-                  <li>
-                    <hr className="dropdown-divider" />
-                  </li>
-
-                  <li>
-                    <button
-                      className="dropdown-item text-danger py-2 fw-medium"
-                      onClick={onLogout}
-                    >
-                      <LogOut
-                        size={14}
-                        className="me-2"
-                      />
-                      Logout
-                    </button>
-                  </li>
-
-                </ul>
               </div>
             ) : (
               /* Login / Register */
               <div className="d-flex gap-2 flex-nowrap">
-
                 <button
                   className="btn btn-outline-primary btn-sm rounded-pill px-3 fw-semibold text-nowrap"
                   onClick={() => setCurrentPage('login')}
@@ -276,7 +271,6 @@ export default function Navbar({
                 >
                   Register
                 </button>
-
               </div>
             )}
 
