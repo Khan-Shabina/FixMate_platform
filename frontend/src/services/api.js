@@ -84,6 +84,35 @@ export const apiService = {
     return mockServices;
   },
 
+  addService: async (serviceData) => {
+    try {
+      const res = await fetch(`${BASE_URL}/services`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(serviceData)
+      });
+      if (res.ok) return { success: true, data: await res.json() };
+      const data = await res.json();
+      return { success: false, error: data.message || 'Failed to add service' };
+    } catch (e) {
+      return { success: false, error: 'Network error while adding service' };
+    }
+  },
+
+  deleteService: async (serviceId) => {
+    try {
+      const res = await fetch(`${BASE_URL}/services/${serviceId}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders()
+      });
+      if (res.ok || res.status === 204) return { success: true };
+      const data = await res.json();
+      return { success: false, error: data.message || 'Failed to delete service' };
+    } catch (e) {
+      return { success: false, error: 'Network error while deleting service' };
+    }
+  },
+
   // Providers
   getProviders: async () => {
     try {

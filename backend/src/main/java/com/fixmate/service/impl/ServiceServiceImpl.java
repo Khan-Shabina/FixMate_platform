@@ -52,4 +52,12 @@ public class ServiceServiceImpl implements ServiceService {
                 .orElseThrow(() -> new ResourceNotFoundException("Service", "id", serviceId));
         return ServiceDTO.fromEntity(entity);
     }
+
+    @Override
+    @Transactional
+    public void deleteService(Long serviceId) {
+        ServiceEntity entity = serviceRepository.findById(serviceId)
+                .orElseThrow(() -> new ResourceNotFoundException("Service", "id", serviceId));
+        serviceRepository.delete(entity);
+    }
 }

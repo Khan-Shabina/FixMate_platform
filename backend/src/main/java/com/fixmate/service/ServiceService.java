@@ -8,4 +8,5 @@ public interface ServiceService {
     List<ServiceDTO> getServicesByCategory(String category);
     ServiceDTO createService(ServiceDTO serviceDTO);
     ServiceDTO getServiceById(Long serviceId);
+    void deleteService(Long serviceId);
 }
