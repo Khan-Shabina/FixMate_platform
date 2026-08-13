@@ -1,6 +1,6 @@
 import { mockServices, mockProviders, mockBookings, mockReminders, mockSocietyBookings } from '../data/mockData';
 
-const BASE_URL = 'http://localhost:8080/api';
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem('fixmate_token');
