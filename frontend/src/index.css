@@ -13,11 +13,18 @@
   --fixmate-card-bg: #FFFFFF;
 }
 
+html, body, #root {
+  overflow-x: hidden !important;
+  width: 100% !important;
+  max-width: 100vw !important;
+  margin: 0;
+  padding: 0;
+}
+
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background-color: #F8FAFC;
   color: #1E293B;
-  overflow-x: hidden;
 }
 
 .bg-fixmate-navy {
@@ -167,4 +174,31 @@ body {
 .stepper-item.completed .stepper-circle {
   background-color: var(--fixmate-green);
   color: #FFFFFF;
+}
+
+/* Mobile responsive navigation fixes */
+@media (max-width: 991.98px) {
+  .navbar-collapse {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+  .navbar-nav {
+    margin-bottom: 1rem !important;
+    align-items: flex-start !important;
+  }
+  .navbar-nav .nav-item {
+    width: 100%;
+  }
+  .navbar-nav .nav-link {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    width: 100%;
+    text-align: left;
+  }
+  .navbar-action-group {
+    flex-wrap: wrap !important;
+    width: 100%;
+    justify-content: flex-start;
+    gap: 0.5rem !important;
+  }
 }

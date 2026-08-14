@@ -184,7 +184,7 @@ export default function Navbar({
           </ul>
 
           {/* Right Action Bar */}
-          <div className="d-flex align-items-center gap-2 flex-nowrap">
+          <div className="d-flex align-items-center gap-2 flex-wrap flex-lg-nowrap navbar-action-group mt-2 mt-lg-0">
 
             {/* Emergency Button */}
             <button
@@ -204,7 +204,7 @@ export default function Navbar({
 
             {/* User Controls: Immediately Visible Logout + Pure React User Dropdown */}
             {user ? (
-              <div className="d-flex align-items-center gap-2 flex-nowrap">
+              <div className="d-flex align-items-center gap-2 flex-wrap flex-sm-nowrap">
                 <div className="position-relative">
                   <button
                     className="btn btn-fixmate-primary btn-sm rounded-pill px-3 text-nowrap d-flex align-items-center gap-1"
@@ -257,7 +257,7 @@ export default function Navbar({
               </div>
             ) : (
               /* Login / Register */
-              <div className="d-flex gap-2 flex-nowrap">
+              <div className="d-flex gap-2 flex-wrap flex-sm-nowrap">
                 <button
                   className="btn btn-outline-primary btn-sm rounded-pill px-3 fw-semibold text-nowrap"
                   onClick={() => setCurrentPage('login')}

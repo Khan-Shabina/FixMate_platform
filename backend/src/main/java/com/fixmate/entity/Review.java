@@ -22,6 +22,10 @@ public class Review {
     @JoinColumn(name = "booking_id", nullable = false, unique = true)
     private Booking booking;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "provider_id")
+    private Provider provider;
+
     @Column(nullable = false)
     private Integer rating;
 

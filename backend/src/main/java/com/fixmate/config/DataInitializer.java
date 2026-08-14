@@ -82,5 +82,29 @@ public class DataInitializer implements CommandLineRunner {
 
             System.out.println(">>> Seeded default services");
         }
+
+        // Seed Provider if none exist
+        if (providerRepository.count() == 0) {
+            User pUser = userRepository.findByEmail("provider@fixmate.com").orElseGet(() -> {
+                User u = new User();
+                u.setName("Rahul Sharma");
+                u.setEmail("provider@fixmate.com");
+                u.setPassword(passwordEncoder.encode("ProviderPassword@123"));
+                u.setPhone("+91 98200 11223");
+                u.setRole("ROLE_PROVIDER");
+                return userRepository.save(u);
+            });
+
+            Provider provider = new Provider();
+            provider.setUser(pUser);
+            provider.setExperience("8 Years");
+            provider.setLocation("Andheri East, Mumbai");
+            provider.setVerificationStatus("VERIFIED");
+            provider.setTrustScore(95);
+            provider.setIsAvailable(true);
+            providerRepository.save(provider);
+
+            System.out.println(">>> Seeded default verified provider: Rahul Sharma");
+        }
     }
 }

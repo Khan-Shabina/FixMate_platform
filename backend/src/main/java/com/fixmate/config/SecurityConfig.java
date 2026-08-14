@@ -63,6 +63,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/services/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/providers/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/society-bookings/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/reminders/**").permitAll()
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
             );
