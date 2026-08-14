@@ -170,24 +170,73 @@ export const apiService = {
         headers: getAuthHeaders(),
         body: JSON.stringify(bookingData)
       });
-      if (res.ok) return await res.json();
+      if (res.ok) return { success: true, data: await res.json() };
+      const data = await res.json();
+      return { success: false, error: data.message || 'Failed to create booking' };
     } catch (e) {
       console.warn('Backend offline, returning mock booking creation');
     }
     return {
-      id: `FM-${Math.floor(1000 + Math.random() * 9000)}`,
-      ...bookingData,
-      status: 'Requested'
+      success: true,
+      data: {
+        bookingId: Math.floor(1000 + Math.random() * 9000),
+        ...bookingData,
+        status: 'REQUESTED'
+      }
     };
   },
 
+  updateBookingStatus: async (bookingId, status) => {
+    try {
+      const res = await fetch(`${BASE_URL}/bookings/${bookingId}/status?status=${status}`, {
+        method: 'PUT',
+        headers: getAuthHeaders()
+      });
+      if (res.ok) return { success: true, data: await res.json() };
+      const data = await res.json();
+      return { success: false, error: data.message || 'Invalid status' };
+    } catch (e) {
+      return { success: false, error: 'Network error' };
+    }
+  },
+
   // Maintenance Reminders
-  getReminders: async () => {
+  getReminders: async (customerId) => {
+    try {
+      const endpoint = customerId ? `${BASE_URL}/reminders/customer/${customerId}` : `${BASE_URL}/reminders/customer/1`;
+      const res = await fetch(endpoint, {
+        headers: getAuthHeaders()
+      });
+      if (res.ok) return await res.json();
+    } catch (e) {
+      console.warn('Backend offline, returning mock reminders');
+    }
     return mockReminders;
   },
 
   // Society Bookings
   getSocietyBookings: async () => {
+    try {
+      const res = await fetch(`${BASE_URL}/society-bookings`, {
+        headers: getAuthHeaders()
+      });
+      if (res.ok) return await res.json();
+    } catch (e) {
+      console.warn('Backend offline, returning mock society bookings');
+    }
     return mockSocietyBookings;
+  },
+
+  joinSocietyBooking: async (societyBookingId, customerId) => {
+    try {
+      const res = await fetch(`${BASE_URL}/society-bookings/${societyBookingId}/join?customerId=${customerId}`, {
+        method: 'POST',
+        headers: getAuthHeaders()
+      });
+      if (res.ok) return { success: true, data: await res.json() };
+    } catch (e) {
+      console.warn('Backend offline');
+    }
+    return { success: true };
   }
 };

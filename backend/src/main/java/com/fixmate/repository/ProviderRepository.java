@@ -11,4 +11,7 @@ public interface ProviderRepository extends JpaRepository<Provider, Long> {
     Optional<Provider> findByUser_UserId(Long userId);
     List<Provider> findByVerificationStatus(String verificationStatus);
     List<Provider> findByIsAvailable(Boolean isAvailable);
+
+    // Auto-dispatch highest trust score verified available provider for Emergency bookings
+    Optional<Provider> findTopByVerificationStatusAndIsAvailableOrderByTrustScoreDesc(String verificationStatus, Boolean isAvailable);
 }
