@@ -1,16 +1,41 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, Zap, ShieldCheck, Star, ArrowRight, CheckCircle, Clock, MapPin, Users, Sparkles } from 'lucide-react';
 import ServiceCard from '../components/ServiceCard';
 import ProviderCard from '../components/ProviderCard';
-import { mockServices, mockProviders } from '../data/mockData';
+import { mockProviders } from '../data/mockData';
+import { apiService } from '../services/api';
 
 export default function Home({ setCurrentPage, setSelectedService, setSelectedProvider, onOpenEmergency }) {
   const [searchQuery, setSearchQuery] = useState('');
+  const [services, setServices] = useState([]);
+  const [loadingServices, setLoadingServices] = useState(true);
 
-  const filteredServices = mockServices.filter(s => 
-    s.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    s.category.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  useEffect(() => {
+    const fetchServices = async () => {
+      setLoadingServices(true);
+      const data = await apiService.getServices();
+      if (Array.isArray(data)) {
+        setServices(data.map(s => ({
+          id: s.serviceId || s.id,
+          name: s.serviceName || s.name,
+          description: s.description || 'Professional home service offering.',
+          price: s.price,
+          category: s.category || 'General',
+          icon: s.icon || 'wrench',
+          rating: s.rating || 4.8
+        })));
+      }
+      setLoadingServices(false);
+    };
+    fetchServices();
+  }, []);
+
+  const filteredServices = services.filter(s => {
+    const name = s.name || '';
+    const category = s.category || '';
+    return name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+           category.toLowerCase().includes(searchQuery.toLowerCase());
+  });
 
   return (
     <div>
@@ -150,19 +175,25 @@ export default function Home({ setCurrentPage, setSelectedService, setSelectedPr
           </button>
         </div>
 
-        <div className="row g-4">
-          {filteredServices.slice(0, 8).map((service) => (
-            <div className="col-lg-3 col-md-6" key={service.id}>
-              <ServiceCard 
-                service={service} 
-                onBook={(srv) => {
-                  setSelectedService(srv);
-                  setCurrentPage('booking');
-                }} 
-              />
-            </div>
-          ))}
-        </div>
+        {loadingServices ? (
+          <div className="text-center py-4 text-muted">
+            <div className="spinner-border spinner-border-sm me-2" role="status"></div> Loading services...
+          </div>
+        ) : (
+          <div className="row g-4">
+            {filteredServices.slice(0, 8).map((service) => (
+              <div className="col-lg-3 col-md-6" key={service.id}>
+                <ServiceCard 
+                  service={service} 
+                  onBook={(srv) => {
+                    setSelectedService(srv);
+                    setCurrentPage('booking');
+                  }} 
+                />
+              </div>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* Top Providers Section */}
