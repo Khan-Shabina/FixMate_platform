@@ -186,6 +186,22 @@ export const apiService = {
     };
   },
 
+  getCustomerBookings: async (customerId) => {
+    try {
+      const endpoint = customerId ? `${BASE_URL}/bookings/customer/${customerId}` : `${BASE_URL}/bookings`;
+      const res = await fetch(endpoint, {
+        headers: getAuthHeaders()
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data)) return data;
+      }
+    } catch (e) {
+      console.warn('Backend offline, returning mock bookings');
+    }
+    return mockBookings;
+  },
+
   updateBookingStatus: async (bookingId, status) => {
     try {
       const res = await fetch(`${BASE_URL}/bookings/${bookingId}/status?status=${status}`, {

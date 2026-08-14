@@ -1,9 +1,42 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, MapPin, Zap, ShieldCheck, Plus, Bell, Users, CheckCircle } from 'lucide-react';
 import BookingCard from '../components/BookingCard';
 import { mockBookings, mockReminders } from '../data/mockData';
+import { apiService } from '../services/api';
 
 export default function CustomerDashboard({ setCurrentPage, setTrackedBooking, onOpenEmergency, user }) {
+  const [bookings, setBookings] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCustomerData = async () => {
+      setLoading(true);
+      const customerId = user?.userId || user?.id;
+      const bData = await apiService.getCustomerBookings(customerId);
+      
+      if (Array.isArray(bData) && bData.length > 0) {
+        setBookings(bData.map(b => ({
+          id: b.bookingId ? `FM-${b.bookingId}` : (b.id || 'FM-2841'),
+          serviceName: b.service?.serviceName || b.serviceName || 'Home Service',
+          category: b.service?.category || b.category || 'General',
+          providerName: b.provider?.name || b.providerName || 'Assigned Technician',
+          providerPhone: b.provider?.phone || b.providerPhone || '+91 98200 11223',
+          date: b.bookingDate ? b.bookingDate.split('T')[0] : '2026-08-14',
+          time: '10:00 AM',
+          status: b.status || 'REQUESTED',
+          emergency: b.emergencyFlag || false,
+          amount: b.service?.price || b.amount || 499,
+          address: b.address || 'Flat 402, Green Valley Society, Andheri East, Mumbai'
+        })));
+      } else {
+        setBookings(mockBookings);
+      }
+      setLoading(false);
+    };
+
+    fetchCustomerData();
+  }, [user]);
+
   return (
     <div className="container py-5">
       {/* Header Banner */}
@@ -30,19 +63,29 @@ export default function CustomerDashboard({ setCurrentPage, setTrackedBooking, o
         <div className="col-lg-8">
           <div className="d-flex align-items-center justify-content-between mb-3">
             <h5 className="fw-bold text-dark mb-0">My Active & Recent Bookings</h5>
-            <span className="badge bg-primary rounded-pill px-3">{mockBookings.length} Total</span>
+            <span className="badge bg-primary rounded-pill px-3">{bookings.length} Total</span>
           </div>
 
-          {mockBookings.map((booking) => (
-            <BookingCard 
-              key={booking.id}
-              booking={booking}
-              onTrack={(b) => {
-                setTrackedBooking(b);
-                setCurrentPage('tracking');
-              }}
-            />
-          ))}
+          {loading ? (
+            <div className="text-center py-4 text-muted">
+              <div className="spinner-border spinner-border-sm me-2" role="status"></div> Loading your bookings...
+            </div>
+          ) : bookings.length === 0 ? (
+            <div className="text-center py-4 text-muted card card-fixmate p-4">
+              No active bookings found. Click "Book Service" to request your first service!
+            </div>
+          ) : (
+            bookings.map((booking) => (
+              <BookingCard 
+                key={booking.id}
+                booking={booking}
+                onTrack={(b) => {
+                  setTrackedBooking(b);
+                  setCurrentPage('tracking');
+                }}
+              />
+            ))
+          )}
         </div>
 
         {/* Reminders & Society Quick Sidebar */}
