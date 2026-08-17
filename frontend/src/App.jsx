@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import EmergencyModal from './components/EmergencyModal';
+import GlobalLoader from './components/GlobalLoader';
 
 // Pages Imports
 import Home from './pages/Home';
@@ -26,7 +27,7 @@ export default function App() {
   const [user, setUser] = useState(() => {
     const saved = localStorage.getItem('fixmate_user');
     if (saved) {
-      try { return JSON.parse(saved); } catch (e) {}
+      try { return JSON.parse(saved); } catch {}
     }
     return null; // Unauthenticated by default - requires login or register
   });
@@ -62,9 +63,25 @@ export default function App() {
     setCurrentPage('login');
   };
 
-  // Scroll to top on page switch
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const [isNavigating, setIsNavigating] = useState(false);
+
+  // Initial load timer
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsInitialLoading(false);
+    }, 550);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Scroll to top and trigger page switch loader on page change
   useEffect(() => {
     window.scrollTo(0, 0);
+    setIsNavigating(true);
+    const timer = setTimeout(() => {
+      setIsNavigating(false);
+    }, 380);
+    return () => clearTimeout(timer);
   }, [currentPage]);
 
   // Access Denied / Protected Route Banner
@@ -185,6 +202,8 @@ export default function App() {
 
   return (
     <div className="d-flex flex-column min-vh-100">
+      <GlobalLoader isLoading={isInitialLoading || isNavigating} />
+
       <Navbar 
         currentPage={currentPage}
         setCurrentPage={setCurrentPage}
@@ -194,7 +213,7 @@ export default function App() {
         onLogout={handleLogout}
       />
 
-      <main className="flex-grow-1">
+      <main key={currentPage} className="flex-grow-1 page-entrance">
         {renderPage()}
       </main>
 

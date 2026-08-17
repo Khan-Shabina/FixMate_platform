@@ -1,5 +1,5 @@
 import React from 'react';
-import { Star, ShieldCheck, MapPin, Briefcase, PhoneCall, CheckCircle } from 'lucide-react';
+import { Star, MapPin, CheckCircle } from 'lucide-react';
 
 export default function ProviderCard({ provider, onSelect, onViewProfile }) {
   return (

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calendar, Clock, MapPin, PhoneCall, Zap, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Calendar, MapPin, Zap } from 'lucide-react';
 
 export default function BookingCard({ booking, onTrack, onUpdateStatus }) {
   const getStatusBadge = (status) => {

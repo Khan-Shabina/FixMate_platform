@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Lock, Mail, Wrench, ArrowRight, AlertCircle } from 'lucide-react';
+import { Lock, Mail, ArrowRight, AlertCircle } from 'lucide-react';
+import fixmateLogo from '../assets/fixmate-logo.jpeg';
 import { apiService } from '../services/api';
 
 export default function Login({ setCurrentPage, setUser }) {
@@ -31,9 +32,16 @@ export default function Login({ setCurrentPage, setUser }) {
     <div className="container py-5 min-vh-75 d-flex align-items-center justify-content-center">
       <div className="card card-fixmate border-0 shadow-lg p-4 p-md-5" style={{ maxWidth: '480px', width: '100%' }}>
         <div className="text-center mb-4">
-          <div className="rounded-3 bg-fixmate-navy p-3 text-white d-inline-flex mb-3">
-            <Wrench size={30} className="text-fixmate-orange" />
-          </div>
+          <img
+            src={fixmateLogo}
+            alt="FixMate Logo"
+            className="rounded-circle shadow-sm mb-3"
+            style={{
+              width: '64px',
+              height: '64px',
+              objectFit: 'cover'
+            }}
+          />
           <h3 className="fw-extrabold text-dark">Welcome Back</h3>
           <p className="text-muted small">Sign in to manage your bookings and local services</p>
         </div>

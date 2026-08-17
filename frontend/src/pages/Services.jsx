@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Filter } from 'lucide-react';
+import { Search } from 'lucide-react';
 import ServiceCard from '../components/ServiceCard';
 import { apiService } from '../services/api';
 

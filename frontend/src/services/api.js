@@ -28,7 +28,7 @@ export const apiService = {
       } else {
         return { success: false, error: data.message || 'Invalid email or password' };
       }
-    } catch (e) {
+    } catch {
       console.warn('Backend server offline or unreachable. Please ensure Spring Boot is running on port 8080.');
       return { success: false, error: 'Could not connect to backend server on port 8080. Please start the Spring Boot app.' };
     }
@@ -52,7 +52,7 @@ export const apiService = {
         const errorMsg = data.errors ? Object.values(data.errors).join(', ') : (data.message || 'Registration failed');
         return { success: false, error: errorMsg };
       }
-    } catch (e) {
+    } catch {
       console.warn('Backend server offline or unreachable. Please ensure Spring Boot is running on port 8080.');
       return { success: false, error: 'Could not connect to backend server on port 8080. Please start the Spring Boot app.' };
     }
@@ -65,7 +65,7 @@ export const apiService = {
         headers: getAuthHeaders()
       });
       if (res.ok) return await res.json();
-    } catch (e) {
+    } catch {
       console.warn('Backend offline');
     }
     return null;
@@ -78,7 +78,7 @@ export const apiService = {
         headers: getAuthHeaders()
       });
       if (res.ok) return await res.json();
-    } catch (e) {
+    } catch {
       console.warn('Backend offline');
     }
     return null;
@@ -91,7 +91,7 @@ export const apiService = {
         headers: getAuthHeaders()
       });
       if (res.ok) return { success: true, data: await res.json() };
-    } catch (e) {
+    } catch {
       console.warn('Backend offline');
     }
     return { success: true };
@@ -104,7 +104,7 @@ export const apiService = {
         headers: getAuthHeaders()
       });
       if (res.ok) return await res.json();
-    } catch (e) {
+    } catch {
       console.warn('Backend offline, returning mock services');
     }
     return mockServices;
@@ -122,9 +122,9 @@ export const apiService = {
       try {
         const data = await res.json();
         if (data && data.message) errorMsg = data.message;
-      } catch (err) {}
+      } catch {}
       return { success: false, error: errorMsg };
-    } catch (e) {
+    } catch {
       return { success: false, error: 'Network error while adding service' };
     }
   },
@@ -142,9 +142,9 @@ export const apiService = {
       try {
         const data = await res.json();
         if (data && data.message) errorMsg = data.message;
-      } catch (err) {}
+      } catch {}
       return { success: false, error: errorMsg };
-    } catch (e) {
+    } catch {
       return { success: false, error: 'Network error while deleting service' };
     }
   },
@@ -156,7 +156,7 @@ export const apiService = {
         headers: getAuthHeaders()
       });
       if (res.ok) return await res.json();
-    } catch (e) {
+    } catch {
       console.warn('Backend offline, returning mock providers');
     }
     return mockProviders;
@@ -173,7 +173,7 @@ export const apiService = {
       if (res.ok) return { success: true, data: await res.json() };
       const data = await res.json();
       return { success: false, error: data.message || 'Failed to create booking' };
-    } catch (e) {
+    } catch {
       console.warn('Backend offline, returning mock booking creation');
     }
     return {
@@ -196,7 +196,7 @@ export const apiService = {
         const data = await res.json();
         if (Array.isArray(data)) return data;
       }
-    } catch (e) {
+    } catch {
       console.warn('Backend offline, returning mock bookings');
     }
     return mockBookings;
@@ -211,7 +211,7 @@ export const apiService = {
       if (res.ok) return { success: true, data: await res.json() };
       const data = await res.json();
       return { success: false, error: data.message || 'Invalid status' };
-    } catch (e) {
+    } catch {
       return { success: false, error: 'Network error' };
     }
   },
@@ -224,7 +224,7 @@ export const apiService = {
         headers: getAuthHeaders()
       });
       if (res.ok) return await res.json();
-    } catch (e) {
+    } catch {
       console.warn('Backend offline, returning mock reminders');
     }
     return mockReminders;
@@ -237,7 +237,7 @@ export const apiService = {
         headers: getAuthHeaders()
       });
       if (res.ok) return await res.json();
-    } catch (e) {
+    } catch {
       console.warn('Backend offline, returning mock society bookings');
     }
     return mockSocietyBookings;
@@ -250,7 +250,7 @@ export const apiService = {
         headers: getAuthHeaders()
       });
       if (res.ok) return { success: true, data: await res.json() };
-    } catch (e) {
+    } catch {
       console.warn('Backend offline');
     }
     return { success: true };

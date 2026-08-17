@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Zap, AlertTriangle, CheckCircle, Clock, MapPin, PhoneCall, X } from 'lucide-react';
+import { Zap, AlertTriangle, Clock, MapPin, PhoneCall } from 'lucide-react';
 
 export default function EmergencyModal({ isOpen, onClose, onBookingSuccess }) {
   const [service, setService] = useState('Emergency Plumbing');

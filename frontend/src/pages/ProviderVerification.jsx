@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ShieldCheck, CheckCircle2, XCircle, FileText, MapPin, Award } from 'lucide-react';
+import { CheckCircle2 } from 'lucide-react';
 import { apiService } from '../services/api';
 
 export default function ProviderVerification({ setCurrentPage }) {

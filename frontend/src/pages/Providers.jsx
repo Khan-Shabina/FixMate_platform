@@ -1,20 +1,53 @@
-import React, { useState } from 'react';
-import { Search, ShieldCheck, Star, MapPin, CheckCircle, Phone, ArrowRight, Filter, Award } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Search, ShieldCheck, ArrowRight, Filter } from 'lucide-react';
 import ProviderCard from '../components/ProviderCard';
 import { mockProviders } from '../data/mockData';
+import { apiService } from '../services/api';
 
 export default function Providers({ setCurrentPage, setSelectedProvider }) {
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [onlyAvailable, setOnlyAvailable] = useState(false);
+  const [providersList, setProvidersList] = useState([]);
+
+  useEffect(() => {
+    const fetchProviders = async () => {
+      const data = await apiService.getProviders();
+      if (Array.isArray(data) && data.length > 0) {
+        setProvidersList(data.map(p => ({
+          id: p.id || p.providerId,
+          name: p.name || p.user?.name || 'Provider',
+          role: p.role || p.category || 'Technician',
+          category: p.category || 'General',
+          location: p.location || p.address || 'Mumbai',
+          rating: p.rating || 4.8,
+          jobsCompleted: p.jobsCompleted || 100,
+          trustScore: p.trustScore || 95,
+          available: p.available !== undefined ? p.available : true,
+          experience: p.experience || '5 Years',
+          phone: p.phone || '+91 98200 00000',
+          img: p.img || 'https://images.unsplash.com/photo-1540569014015-19a7be504e3a?w=150&h=150&fit=crop&crop=faces',
+          verified: p.verified !== undefined ? p.verified : true,
+          bio: p.bio || 'Verified service professional.',
+          reviewsCount: p.reviewsCount || 50
+        })));
+      } else {
+        setProvidersList(mockProviders);
+      }
+    };
+    fetchProviders();
+  }, []);
 
   const categories = ['All', 'Electrician', 'Plumber', 'AC Repair', 'Cleaning', 'Appliance Repair'];
 
-  const filteredProviders = mockProviders.filter(p => {
-    const matchesCategory = selectedCategory === 'All' || p.role.toLowerCase().includes(selectedCategory.toLowerCase());
-    const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase()) || 
-                          p.location.toLowerCase().includes(search.toLowerCase()) ||
-                          p.role.toLowerCase().includes(search.toLowerCase());
+  const filteredProviders = providersList.filter(p => {
+    const role = p.role || '';
+    const name = p.name || '';
+    const location = p.location || '';
+    const matchesCategory = selectedCategory === 'All' || role.toLowerCase().includes(selectedCategory.toLowerCase());
+    const matchesSearch = name.toLowerCase().includes(search.toLowerCase()) || 
+                          location.toLowerCase().includes(search.toLowerCase()) ||
+                          role.toLowerCase().includes(search.toLowerCase());
     const matchesAvailable = !onlyAvailable || p.available;
     return matchesCategory && matchesSearch && matchesAvailable;
   });

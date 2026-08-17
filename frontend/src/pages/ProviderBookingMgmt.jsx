@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { CheckCircle, XCircle, Clock, Zap, ArrowRight } from 'lucide-react';
 import { mockBookings } from '../data/mockData';
 
 export default function ProviderBookingMgmt({ setCurrentPage }) {

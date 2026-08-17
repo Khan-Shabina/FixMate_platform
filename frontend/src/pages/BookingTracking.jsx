@@ -1,5 +1,5 @@
 import React from 'react';
-import { CheckCircle, Clock, MapPin, PhoneCall, ShieldCheck, UserCheck, Zap } from 'lucide-react';
+import { CheckCircle, PhoneCall, ShieldCheck, UserCheck } from 'lucide-react';
 import { mockBookings } from '../data/mockData';
 
 export default function BookingTracking({ trackedBooking, setCurrentPage }) {
