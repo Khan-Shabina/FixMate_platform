@@ -1,6 +1,12 @@
 import React from 'react';
 import { Wrench, PhoneCall, ShieldCheck, Heart, Code } from 'lucide-react';
-import { mockTeamMembers } from '../data/mockData';
+
+const teamMembers = [
+  { name: 'Shabina Khan', role: 'Group Member' },
+  { name: 'Shankar Sala', role: 'Group Member' },
+  { name: 'Siddhi Patil', role: 'Group Member' },
+  { name: 'Sumit Shelar', role: 'Group Member' }
+];
 
 export default function Footer({ setCurrentPage }) {
   return (
@@ -60,7 +66,7 @@ export default function Footer({ setCurrentPage }) {
                 <span className="fw-bold small text-white">FixMate Development Group</span>
               </div>
               <ul className="list-unstyled small mb-0 opacity-90 d-grid gap-1">
-                {mockTeamMembers.map((member, idx) => (
+                {teamMembers.map((member, idx) => (
                   <li key={idx} className="d-flex align-items-center justify-content-between">
                     <span>{idx + 1}. {member.name}</span>
                     <span className="badge bg-primary bg-opacity-50 text-white" style={{ fontSize: '0.65rem' }}>Dev</span>

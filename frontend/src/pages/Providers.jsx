@@ -1,21 +1,40 @@
-import React, { useState } from 'react';
-import { Search, ShieldCheck, Star, MapPin, CheckCircle, Phone, ArrowRight, Filter, Award } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Search, ShieldCheck, Star, MapPin, CheckCircle, Phone, ArrowRight, Filter, Award, Users } from 'lucide-react';
 import ProviderCard from '../components/ProviderCard';
-import { mockProviders } from '../data/mockData';
+import { apiService } from '../services/api';
 
 export default function Providers({ setCurrentPage, setSelectedProvider }) {
+  const [providers, setProviders] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [onlyAvailable, setOnlyAvailable] = useState(false);
 
   const categories = ['All', 'Electrician', 'Plumber', 'AC Repair', 'Cleaning', 'Appliance Repair'];
 
-  const filteredProviders = mockProviders.filter(p => {
-    const matchesCategory = selectedCategory === 'All' || p.role.toLowerCase().includes(selectedCategory.toLowerCase());
-    const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase()) || 
-                          p.location.toLowerCase().includes(search.toLowerCase()) ||
-                          p.role.toLowerCase().includes(search.toLowerCase());
-    const matchesAvailable = !onlyAvailable || p.available;
+  useEffect(() => {
+    const fetchProviders = async () => {
+      setLoading(true);
+      const data = await apiService.getProviders();
+      if (Array.isArray(data)) {
+        setProviders(data);
+      }
+      setLoading(false);
+    };
+    fetchProviders();
+  }, []);
+
+  const filteredProviders = providers.filter(p => {
+    const roleStr = p.role || p.category || '';
+    const nameStr = p.name || '';
+    const locStr = p.location || '';
+    const isAvail = p.isAvailable !== undefined ? p.isAvailable : p.available;
+
+    const matchesCategory = selectedCategory === 'All' || roleStr.toLowerCase().includes(selectedCategory.toLowerCase());
+    const matchesSearch = nameStr.toLowerCase().includes(search.toLowerCase()) || 
+                          locStr.toLowerCase().includes(search.toLowerCase()) ||
+                          roleStr.toLowerCase().includes(search.toLowerCase());
+    const matchesAvailable = !onlyAvailable || isAvail;
     return matchesCategory && matchesSearch && matchesAvailable;
   });
 
@@ -27,7 +46,7 @@ export default function Providers({ setCurrentPage, setSelectedProvider }) {
           <div className="col-lg-8">
             <div className="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill bg-white bg-opacity-10 border border-white border-opacity-20 mb-3 small">
               <ShieldCheck size={16} className="text-warning" />
-              <span className="fw-semibold">100% Background Verified Local Technicians</span>
+              <span className="fw-semibold">Background Verified Local Technicians</span>
             </div>
             <h2 className="fw-extrabold display-6 text-white mb-2">Verified Service Professionals</h2>
             <p className="text-light opacity-90 mb-0">Browse top-rated electricians, plumbers, and technicians near you with transparent community trust scores.</p>
@@ -86,10 +105,14 @@ export default function Providers({ setCurrentPage, setSelectedProvider }) {
       </div>
 
       {/* Provider List Grid */}
-      <div className="row g-4">
-        {filteredProviders.length > 0 ? (
-          filteredProviders.map((provider) => (
-            <div className="col-lg-6" key={provider.id}>
+      {loading ? (
+        <div className="text-center py-5 text-muted">
+          <div className="spinner-border spinner-border-sm me-2" role="status"></div> Loading verified technicians...
+        </div>
+      ) : filteredProviders.length > 0 ? (
+        <div className="row g-4">
+          {filteredProviders.map((provider) => (
+            <div className="col-lg-6" key={provider.providerId || provider.id}>
               <ProviderCard 
                 provider={provider}
                 onSelect={(p) => {
@@ -102,20 +125,25 @@ export default function Providers({ setCurrentPage, setSelectedProvider }) {
                 }}
               />
             </div>
-          ))
-        ) : (
-          <div className="col-12 text-center py-5">
-            <div className="p-4 bg-light rounded-4 max-w-md mx-auto">
-              <Filter size={40} className="text-muted mb-3" />
-              <h5 className="fw-bold text-dark">No Technicians Match Your Filter</h5>
-              <p className="text-muted small">Try clearing your search query or enabling all availability options.</p>
+          ))}
+        </div>
+      ) : (
+        <div className="text-center py-5">
+          <div className="p-4 bg-light rounded-4 max-w-md mx-auto">
+            <Users size={40} className="text-muted mb-3" />
+            <h5 className="fw-bold text-dark">No Service Providers Found</h5>
+            <p className="text-muted small">No providers match your criteria or none have registered yet.</p>
+            <div className="d-flex justify-content-center gap-2">
               <button className="btn btn-outline-primary btn-sm rounded-pill" onClick={() => { setSearch(''); setSelectedCategory('All'); setOnlyAvailable(false); }}>
-                Reset All Filters
+                Reset Filters
+              </button>
+              <button className="btn btn-warning btn-sm rounded-pill fw-bold" onClick={() => setCurrentPage('register')}>
+                Register as Provider
               </button>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

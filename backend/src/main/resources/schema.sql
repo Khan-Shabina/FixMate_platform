@@ -52,10 +52,12 @@ CREATE TABLE IF NOT EXISTS booking (
 CREATE TABLE IF NOT EXISTS review (
     review_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     booking_id BIGINT NOT NULL UNIQUE,
+    provider_id BIGINT,
     rating INT NOT NULL,
     comment TEXT,
     date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (booking_id) REFERENCES booking(booking_id) ON DELETE CASCADE
+    FOREIGN KEY (booking_id) REFERENCES booking(booking_id) ON DELETE CASCADE,
+    FOREIGN KEY (provider_id) REFERENCES provider(provider_id) ON DELETE SET NULL
 );
 
 -- 6. Maintenance Reminder Table

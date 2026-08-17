@@ -1,24 +1,39 @@
 import React from 'react';
-import { CheckCircle, Clock, MapPin, PhoneCall, ShieldCheck, UserCheck, Zap } from 'lucide-react';
-import { mockBookings } from '../data/mockData';
+import { CheckCircle, Clock, MapPin, PhoneCall, ShieldCheck, UserCheck, Zap, AlertCircle } from 'lucide-react';
 
 export default function BookingTracking({ trackedBooking, setCurrentPage }) {
-  const b = trackedBooking || mockBookings[0];
+  if (!trackedBooking) {
+    return (
+      <div className="container py-5 text-center">
+        <div className="card card-fixmate p-5 max-w-lg mx-auto">
+          <Clock size={48} className="text-muted mx-auto mb-3" />
+          <h4 className="fw-bold text-dark">No Active Booking Selected for Tracking</h4>
+          <p className="text-muted small mb-4">You can track your service bookings in real-time from your Customer Dashboard.</p>
+          <button className="btn btn-fixmate-primary rounded-pill px-4 fw-bold mx-auto" onClick={() => setCurrentPage('customer-dashboard')}>
+            Go to Customer Dashboard
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const b = trackedBooking;
 
   const steps = [
-    { title: 'Requested', desc: 'Booking sent to local provider', key: 'Requested' },
-    { title: 'Accepted', desc: 'Worker confirmed appointment', key: 'Accepted' },
-    { title: 'In Progress', desc: 'Worker arrived at location', key: 'In Progress' },
-    { title: 'Completed', desc: 'Service finished & verified', key: 'Completed' }
+    { title: 'Requested', desc: 'Booking sent to local provider', key: 'REQUESTED' },
+    { title: 'Accepted', desc: 'Worker confirmed appointment', key: 'ACCEPTED' },
+    { title: 'In Progress', desc: 'Worker arrived at location', key: 'IN_PROGRESS' },
+    { title: 'Completed', desc: 'Service finished & verified', key: 'COMPLETED' }
   ];
 
   const getCurrentStepIndex = () => {
-    switch (b.status) {
-      case 'Requested': return 0;
-      case 'Accepted': return 1;
-      case 'In Progress': return 2;
-      case 'Completed': return 3;
-      default: return 1;
+    const status = (b.status || '').toUpperCase();
+    switch (status) {
+      case 'REQUESTED': return 0;
+      case 'ACCEPTED': return 1;
+      case 'IN_PROGRESS': return 2;
+      case 'COMPLETED': return 3;
+      default: return 0;
     }
   };
 
@@ -30,7 +45,7 @@ export default function BookingTracking({ trackedBooking, setCurrentPage }) {
         <div className="d-flex flex-wrap align-items-center justify-content-between border-bottom pb-3 mb-4 gap-2">
           <div>
             <span className="badge bg-primary bg-opacity-10 text-primary fw-bold mb-1">Live Tracking</span>
-            <h4 className="fw-extrabold text-dark mb-0">Booking #{b.id}</h4>
+            <h4 className="fw-extrabold text-dark mb-0">Booking #{b.id || 'FM-1001'}</h4>
           </div>
           <div className="text-end">
             <span className="text-muted small d-block">Current Status</span>
@@ -65,16 +80,18 @@ export default function BookingTracking({ trackedBooking, setCurrentPage }) {
                   <UserCheck size={28} />
                 </div>
                 <div>
-                  <h6 className="fw-bold text-dark mb-0">{b.providerName}</h6>
-                  <small className="text-muted d-block">{b.serviceName}</small>
-                  <span className="text-success small fw-bold"><ShieldCheck size={14} className="d-inline me-1" /> 97% Verified Trust</span>
+                  <h6 className="fw-bold text-dark mb-0">{b.providerName || 'Assigned Technician'}</h6>
+                  <small className="text-muted d-block">{b.serviceName || 'Service'}</small>
+                  <span className="text-success small fw-bold"><ShieldCheck size={14} className="d-inline me-1" /> Verified Service Professional</span>
                 </div>
               </div>
-              <div className="mt-3 pt-2 border-top d-flex gap-2">
-                <a href={`tel:${b.providerPhone}`} className="btn btn-outline-primary btn-sm rounded-pill flex-fill fw-bold">
-                  <PhoneCall size={14} className="me-1" /> Call Worker
-                </a>
-              </div>
+              {b.providerPhone && b.providerPhone !== 'N/A' && (
+                <div className="mt-3 pt-2 border-top d-flex gap-2">
+                  <a href={`tel:${b.providerPhone}`} className="btn btn-outline-primary btn-sm rounded-pill flex-fill fw-bold">
+                    <PhoneCall size={14} className="me-1" /> Call Worker
+                  </a>
+                </div>
+              )}
             </div>
           </div>
 

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Users, ShieldCheck, CheckCircle2, DollarSign, Activity, FileText } from 'lucide-react';
-import { mockBookings } from '../data/mockData';
 import { apiService } from '../services/api';
 
 export default function AdminDashboard({ setCurrentPage, user }) {
@@ -55,7 +54,7 @@ export default function AdminDashboard({ setCurrentPage, user }) {
             <div className="rounded-circle bg-primary bg-opacity-10 text-primary p-3 mx-auto mb-2" style={{ width: '56px', height: '56px' }}>
               <Users size={24} />
             </div>
-            <h3 className="fw-extrabold text-dark mb-0">{stats?.totalUsers || '1,248'}</h3>
+            <h3 className="fw-extrabold text-dark mb-0">{stats?.totalUsers !== undefined ? stats.totalUsers : 0}</h3>
             <span className="text-muted small">Registered Users</span>
           </div>
         </div>
@@ -65,8 +64,8 @@ export default function AdminDashboard({ setCurrentPage, user }) {
             <div className="rounded-circle bg-success bg-opacity-10 text-success p-3 mx-auto mb-2" style={{ width: '56px', height: '56px' }}>
               <ShieldCheck size={24} />
             </div>
-            <h3 className="fw-extrabold text-dark mb-0">{stats?.totalProviders || '340'}</h3>
-            <span className="text-muted small">Verified Technicians</span>
+            <h3 className="fw-extrabold text-dark mb-0">{stats?.totalProviders !== undefined ? stats.totalProviders : 0}</h3>
+            <span className="text-muted small">Registered Technicians</span>
           </div>
         </div>
 
@@ -75,7 +74,7 @@ export default function AdminDashboard({ setCurrentPage, user }) {
             <div className="rounded-circle bg-warning bg-opacity-10 text-warning p-3 mx-auto mb-2" style={{ width: '56px', height: '56px' }}>
               <CheckCircle2 size={24} />
             </div>
-            <h3 className="fw-extrabold text-dark mb-0">{stats?.totalBookings || '48,210'}</h3>
+            <h3 className="fw-extrabold text-dark mb-0">{stats?.totalBookings !== undefined ? stats.totalBookings : 0}</h3>
             <span className="text-muted small">Total Bookings</span>
           </div>
         </div>
@@ -85,8 +84,8 @@ export default function AdminDashboard({ setCurrentPage, user }) {
             <div className="rounded-circle bg-info bg-opacity-10 text-info p-3 mx-auto mb-2" style={{ width: '56px', height: '56px' }}>
               <DollarSign size={24} />
             </div>
-            <h3 className="fw-extrabold text-dark mb-0">₹12.4L</h3>
-            <span className="text-muted small">Platform Revenue</span>
+            <h3 className="fw-extrabold text-dark mb-0">{stats?.pendingVerifications !== undefined ? stats.pendingVerifications : 0}</h3>
+            <span className="text-muted small">Pending Verifications</span>
           </div>
         </div>
       </div>
@@ -94,7 +93,7 @@ export default function AdminDashboard({ setCurrentPage, user }) {
       {/* Verification & System Logs */}
       <div className="row g-4">
         <div className="col-lg-6">
-          <div className="card card-fixmate p-4">
+          <div className="card card-fixmate p-4 h-100">
             <div className="d-flex align-items-center justify-content-between mb-3">
               <h5 className="fw-bold text-dark mb-0">Worker Verification Queue</h5>
               <button className="btn btn-link p-0 text-primary small fw-bold text-decoration-none" onClick={() => setCurrentPage('provider-verification')}>
@@ -103,17 +102,20 @@ export default function AdminDashboard({ setCurrentPage, user }) {
             </div>
 
             {pendingProviders.length === 0 ? (
-              <div className="p-3 bg-light rounded-3 text-center text-muted small">
-                <CheckCircle2 size={20} className="text-success me-1.5 d-inline" /> All service provider applications have been verified. No pending verifications.
+              <div className="p-4 bg-light rounded-3 text-center text-muted small">
+                <CheckCircle2 size={24} className="text-success mx-auto mb-2 d-block" />
+                No pending provider verification requests at this time.
               </div>
             ) : (
               pendingProviders.map((p) => (
                 <div key={p.id || p.providerId} className="p-3 bg-light rounded-3 border d-flex align-items-center justify-content-between mb-2">
                   <div className="d-flex align-items-center gap-3">
-                    <img src={p.img || 'https://images.unsplash.com/photo-1540569014015-19a7be504e3a?w=150&h=150&fit=crop&crop=faces'} alt={p.name} className="rounded-circle" style={{ width: '48px', height: '48px' }} />
+                    <div className="rounded-circle bg-primary bg-opacity-10 text-primary p-2 fw-bold text-center" style={{ width: '42px', height: '42px', lineHeight: '26px' }}>
+                      {(p.name || p.user?.name || 'P')[0]}
+                    </div>
                     <div>
                       <h6 className="fw-bold text-dark mb-0">{p.name || p.user?.name}</h6>
-                      <small className="text-muted">{p.role || p.category || 'Provider'} • {p.location || 'City Center'}</small>
+                      <small className="text-muted">{p.role || p.category || 'Provider'} • {p.location || 'Location'}</small>
                     </div>
                   </div>
                   <span className="badge bg-warning text-dark px-3 py-1 rounded-pill fw-bold">PENDING</span>
@@ -124,21 +126,27 @@ export default function AdminDashboard({ setCurrentPage, user }) {
         </div>
 
         <div className="col-lg-6">
-          <div className="card card-fixmate p-4">
+          <div className="card card-fixmate p-4 h-100">
             <h5 className="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
-              <Activity size={20} className="text-primary" /> Live Activity Feed
+              <Activity size={20} className="text-primary" /> Platform Status & Overview
             </h5>
-            <ul className="list-unstyled small text-muted mb-0 d-grid gap-2">
-              <li className="p-2 bg-light rounded border-start border-3 border-success">
-                <strong>New Booking #FM-2841:</strong> Master Electrical Repair requested by Sumit Shelar.
-              </li>
-              <li className="p-2 bg-light rounded border-start border-3 border-warning">
-                <strong>Emergency Priority Alert:</strong> Dispatched to Rahul Sharma (Andheri East).
-              </li>
-              <li className="p-2 bg-light rounded border-start border-3 border-primary">
-                <strong>Society Group Deal:</strong> Green Valley Society crossed 14 joined members.
-              </li>
-            </ul>
+            <div className="bg-light p-3 rounded-3 border mb-3">
+              <div className="d-flex align-items-center justify-content-between mb-2 pb-2 border-bottom">
+                <span className="small text-muted">API Server:</span>
+                <span className="badge bg-success bg-opacity-10 text-success fw-bold">ONLINE (Port 8080)</span>
+              </div>
+              <div className="d-flex align-items-center justify-content-between mb-2 pb-2 border-bottom">
+                <span className="small text-muted">Database Connection:</span>
+                <span className="badge bg-success bg-opacity-10 text-success fw-bold">CONNECTED</span>
+              </div>
+              <div className="d-flex align-items-center justify-content-between">
+                <span className="small text-muted">Authentication:</span>
+                <span className="badge bg-primary bg-opacity-10 text-primary fw-bold">JWT Secure</span>
+              </div>
+            </div>
+            <button className="btn btn-outline-secondary btn-sm w-100 rounded-pill" onClick={() => setCurrentPage('manage-services')}>
+              Manage Service Catalog
+            </button>
           </div>
         </div>
       </div>

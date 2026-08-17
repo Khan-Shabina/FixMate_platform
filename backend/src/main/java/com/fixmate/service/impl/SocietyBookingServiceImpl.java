@@ -4,6 +4,7 @@ import com.fixmate.entity.Booking;
 import com.fixmate.entity.ServiceEntity;
 import com.fixmate.entity.SocietyBooking;
 import com.fixmate.entity.User;
+import com.fixmate.exception.BadRequestException;
 import com.fixmate.exception.ResourceNotFoundException;
 import com.fixmate.repository.BookingRepository;
 import com.fixmate.repository.ServiceRepository;
@@ -54,6 +55,10 @@ public class SocietyBookingServiceImpl implements SocietyBookingService {
         ServiceEntity service = serviceRepository.findById(serviceId)
                 .orElseThrow(() -> new ResourceNotFoundException("Service", "id", serviceId));
 
+        String resolvedSocietyName = (societyName != null && !societyName.isBlank()) 
+                ? societyName.trim() 
+                : "Residential Community";
+
         LocalDate bDate = (bookingDateStr != null && !bookingDateStr.trim().isEmpty()) 
                 ? LocalDate.parse(bookingDateStr) 
                 : LocalDate.now().plusDays(7);
@@ -61,7 +66,7 @@ public class SocietyBookingServiceImpl implements SocietyBookingService {
         SocietyBooking groupBooking = SocietyBooking.builder()
                 .customer(customer)
                 .service(service)
-                .societyName(societyName != null ? societyName : "Green Valley Society")
+                .societyName(resolvedSocietyName)
                 .membersCount(1)
                 .discountPercentage(15)
                 .bookingDate(bDate)

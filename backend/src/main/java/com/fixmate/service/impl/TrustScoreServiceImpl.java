@@ -36,10 +36,10 @@ public class TrustScoreServiceImpl implements TrustScoreService {
 
         // 2. Fetch Provider Bookings
         List<Booking> bookings = bookingRepository.findByProviderProviderId(provider.getProviderId());
-        double completionRate = 0.85; // Default 85% completion
+        double completionRate = 1.0;
         double penaltyRate = 0.0;
 
-        if (!bookings.isEmpty()) {
+        if (bookings != null && !bookings.isEmpty()) {
             long total = bookings.size();
             long completed = bookings.stream().filter(b -> "COMPLETED".equalsIgnoreCase(b.getStatus())).count();
             long cancelled = bookings.stream().filter(b -> "CANCELLED".equalsIgnoreCase(b.getStatus()) || "REJECTED".equalsIgnoreCase(b.getStatus())).count();
@@ -50,9 +50,9 @@ public class TrustScoreServiceImpl implements TrustScoreService {
 
         // 3. Fetch Provider Reviews
         List<Review> reviews = reviewRepository.findByProvider_ProviderId(provider.getProviderId());
-        double avgRating = 4.8;
-        if (!reviews.isEmpty()) {
-            avgRating = reviews.stream().mapToInt(Review::getRating).average().orElse(4.8);
+        double avgRating = 5.0;
+        if (reviews != null && !reviews.isEmpty()) {
+            avgRating = reviews.stream().mapToInt(Review::getRating).average().orElse(5.0);
         }
 
         // Algorithmic Formula: (CompletionRate * 40) + (AvgRating/5.0 * 40) + (BaseVerificationScore * 0.20) - (PenaltyRate * 15)

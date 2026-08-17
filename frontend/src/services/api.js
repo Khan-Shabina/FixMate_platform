@@ -1,5 +1,3 @@
-import { mockServices, mockProviders, mockBookings, mockReminders, mockSocietyBookings } from '../data/mockData';
-
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
 
 const getAuthHeaders = () => {
@@ -29,8 +27,8 @@ export const apiService = {
         return { success: false, error: data.message || 'Invalid email or password' };
       }
     } catch (e) {
-      console.warn('Backend server offline or unreachable. Please ensure Spring Boot is running on port 8080.');
-      return { success: false, error: 'Could not connect to backend server on port 8080. Please start the Spring Boot app.' };
+      console.warn('Backend server offline or unreachable on port 8080.');
+      return { success: false, error: 'Could not connect to backend server on port 8080. Please ensure the backend is running.' };
     }
   },
 
@@ -53,8 +51,8 @@ export const apiService = {
         return { success: false, error: errorMsg };
       }
     } catch (e) {
-      console.warn('Backend server offline or unreachable. Please ensure Spring Boot is running on port 8080.');
-      return { success: false, error: 'Could not connect to backend server on port 8080. Please start the Spring Boot app.' };
+      console.warn('Backend server offline or unreachable on port 8080.');
+      return { success: false, error: 'Could not connect to backend server on port 8080. Please ensure the backend is running.' };
     }
   },
 
@@ -94,7 +92,7 @@ export const apiService = {
     } catch (e) {
       console.warn('Backend offline');
     }
-    return { success: true };
+    return { success: false };
   },
 
   // Services
@@ -105,9 +103,9 @@ export const apiService = {
       });
       if (res.ok) return await res.json();
     } catch (e) {
-      console.warn('Backend offline, returning mock services');
+      console.warn('Failed to fetch services from backend');
     }
-    return mockServices;
+    return [];
   },
 
   addService: async (serviceData) => {
@@ -157,9 +155,9 @@ export const apiService = {
       });
       if (res.ok) return await res.json();
     } catch (e) {
-      console.warn('Backend offline, returning mock providers');
+      console.warn('Failed to fetch providers from backend');
     }
-    return mockProviders;
+    return [];
   },
 
   // Bookings
@@ -174,16 +172,8 @@ export const apiService = {
       const data = await res.json();
       return { success: false, error: data.message || 'Failed to create booking' };
     } catch (e) {
-      console.warn('Backend offline, returning mock booking creation');
+      return { success: false, error: 'Network error while creating booking' };
     }
-    return {
-      success: true,
-      data: {
-        bookingId: Math.floor(1000 + Math.random() * 9000),
-        ...bookingData,
-        status: 'REQUESTED'
-      }
-    };
   },
 
   getCustomerBookings: async (customerId) => {
@@ -197,9 +187,25 @@ export const apiService = {
         if (Array.isArray(data)) return data;
       }
     } catch (e) {
-      console.warn('Backend offline, returning mock bookings');
+      console.warn('Failed to fetch bookings from backend');
     }
-    return mockBookings;
+    return [];
+  },
+
+  getProviderBookings: async (providerId) => {
+    try {
+      const endpoint = providerId ? `${BASE_URL}/bookings/provider/${providerId}` : `${BASE_URL}/bookings`;
+      const res = await fetch(endpoint, {
+        headers: getAuthHeaders()
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data)) return data;
+      }
+    } catch (e) {
+      console.warn('Failed to fetch provider bookings');
+    }
+    return [];
   },
 
   updateBookingStatus: async (bookingId, status) => {
@@ -212,7 +218,7 @@ export const apiService = {
       const data = await res.json();
       return { success: false, error: data.message || 'Invalid status' };
     } catch (e) {
-      return { success: false, error: 'Network error' };
+      return { success: false, error: 'Network error while updating booking status' };
     }
   },
 
@@ -225,9 +231,9 @@ export const apiService = {
       });
       if (res.ok) return await res.json();
     } catch (e) {
-      console.warn('Backend offline, returning mock reminders');
+      console.warn('Failed to fetch reminders from backend');
     }
-    return mockReminders;
+    return [];
   },
 
   // Society Bookings
@@ -238,9 +244,9 @@ export const apiService = {
       });
       if (res.ok) return await res.json();
     } catch (e) {
-      console.warn('Backend offline, returning mock society bookings');
+      console.warn('Failed to fetch society bookings from backend');
     }
-    return mockSocietyBookings;
+    return [];
   },
 
   joinSocietyBooking: async (societyBookingId, customerId) => {
@@ -251,8 +257,8 @@ export const apiService = {
       });
       if (res.ok) return { success: true, data: await res.json() };
     } catch (e) {
-      console.warn('Backend offline');
+      console.warn('Failed to join society booking');
     }
-    return { success: true };
+    return { success: false };
   }
 };
