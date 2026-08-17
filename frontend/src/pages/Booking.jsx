@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Calendar, Clock, MapPin, Zap, CheckCircle, ArrowRight } from 'lucide-react';
+import { Calendar, Clock, MapPin, Zap, ArrowRight } from 'lucide-react';
 import { mockServices, mockProviders } from '../data/mockData';
 import { apiService } from '../services/api';
 
@@ -11,7 +11,6 @@ export default function Booking({ selectedService, selectedProvider, setCurrentP
   const [time, setTime] = useState('10:00 AM');
   const [address, setAddress] = useState('Flat 402, Green Valley Society, Andheri East, Mumbai');
   const [emergency, setEmergency] = useState(false);
-  const [notes, setNotes] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleBookingSubmit = async (e) => {

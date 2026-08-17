@@ -1,8 +1,23 @@
-import React from 'react';
-import { Calendar, Bell, Clock, CheckCircle, Plus, AlertCircle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Plus } from 'lucide-react';
 import { mockReminders } from '../data/mockData';
+import { apiService } from '../services/api';
 
-export default function MaintenanceReminder({ setCurrentPage, setSelectedService }) {
+export default function MaintenanceReminder({ setCurrentPage, setSelectedService: _setSelectedService }) {
+  const [reminders, setReminders] = useState([]);
+
+  useEffect(() => {
+    const fetchReminders = async () => {
+      const data = await apiService.getReminders();
+      if (Array.isArray(data) && data.length > 0) {
+        setReminders(data);
+      } else {
+        setReminders(mockReminders);
+      }
+    };
+    fetchReminders();
+  }, []);
+
   return (
     <div className="container py-5">
       <div className="d-flex flex-wrap align-items-center justify-content-between mb-4 gap-2">
@@ -17,7 +32,7 @@ export default function MaintenanceReminder({ setCurrentPage, setSelectedService
       </div>
 
       <div className="row g-4">
-        {mockReminders.map((reminder) => (
+        {reminders.map((reminder) => (
           <div className="col-md-4" key={reminder.id}>
             <div className="card card-fixmate p-4 h-100 position-relative overflow-hidden">
               <div className="d-flex align-items-center justify-content-between mb-3">

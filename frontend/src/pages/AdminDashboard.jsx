@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Users, ShieldCheck, CheckCircle2, DollarSign, Activity, FileText } from 'lucide-react';
-import { mockBookings } from '../data/mockData';
+import { Users, ShieldCheck, CheckCircle2, DollarSign, Activity } from 'lucide-react';
 import { apiService } from '../services/api';
 
 export default function AdminDashboard({ setCurrentPage, user }) {
   const [providers, setProviders] = useState([]);
   const [stats, setStats] = useState(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadData = async () => {

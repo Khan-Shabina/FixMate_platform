@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Clock, MapPin, Zap, ShieldCheck, Plus, Bell, Users, CheckCircle } from 'lucide-react';
+import { Zap, Plus, Bell, Users } from 'lucide-react';
 import BookingCard from '../components/BookingCard';
 import { mockBookings, mockReminders } from '../data/mockData';
 import { apiService } from '../services/api';

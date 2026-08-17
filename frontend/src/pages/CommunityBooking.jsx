@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Users, Building, ShieldCheck, Tag, CheckCircle2, ArrowRight } from 'lucide-react';
+import { Users, Building, Tag, CheckCircle2 } from 'lucide-react';
 import { mockSocietyBookings } from '../data/mockData';
 
-export default function CommunityBooking({ setCurrentPage }) {
+export default function CommunityBooking({ setCurrentPage: _setCurrentPage }) {
   const [joined, setJoined] = useState({});
 
   const handleJoin = (id) => {

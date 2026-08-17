@@ -1,5 +1,5 @@
 import React from 'react';
-import { Star, ShieldCheck, MapPin, Briefcase, PhoneCall, CheckCircle, Calendar, MessageSquare, Award } from 'lucide-react';
+import { Star, ShieldCheck, MapPin, Briefcase, PhoneCall, MessageSquare, Award } from 'lucide-react';
 import { mockProviders } from '../data/mockData';
 
 export default function ProviderProfile({ provider, setCurrentPage, setSelectedProvider }) {

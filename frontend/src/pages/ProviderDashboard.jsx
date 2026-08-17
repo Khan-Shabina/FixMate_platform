@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { DollarSign, CheckCircle, Star, ShieldCheck, ToggleLeft, ToggleRight, ListCheck, Wrench, Clock } from 'lucide-react';
+import { ListCheck, Wrench } from 'lucide-react';
 import { mockBookings } from '../data/mockData';
 
 export default function ProviderDashboard({ setCurrentPage, user }) {
