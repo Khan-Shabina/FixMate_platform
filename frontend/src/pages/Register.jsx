@@ -53,15 +53,15 @@ export default function Register({ setCurrentPage, setUser }) {
 
         {/* Role Toggle */}
         <div className="btn-group w-100 mb-4 p-1 bg-light rounded-3 border">
-          <button 
-            type="button" 
+          <button
+            type="button"
             className={`btn btn-sm rounded-2 fw-bold py-2 ${role === 'ROLE_CUSTOMER' ? 'btn-white bg-white text-primary shadow-sm' : 'text-muted'}`}
             onClick={() => setRole('ROLE_CUSTOMER')}
           >
             👤 Customer Account
           </button>
-          <button 
-            type="button" 
+          <button
+            type="button"
             className={`btn btn-sm rounded-2 fw-bold py-2 ${role === 'ROLE_PROVIDER' ? 'btn-white bg-white text-primary shadow-sm' : 'text-muted'}`}
             onClick={() => setRole('ROLE_PROVIDER')}
           >
@@ -105,19 +105,42 @@ export default function Register({ setCurrentPage, setUser }) {
           </div>
 
           {role === 'ROLE_PROVIDER' && (
-            <div className="row g-3 mb-3 p-3 bg-light rounded-3 border">
-              <div className="col-md-6">
-                <label className="form-label small fw-bold text-secondary">Years of Experience</label>
-                <div className="input-group">
-                  <span className="input-group-text bg-white border-end-0"><Briefcase size={16} className="text-muted" /></span>
-                  <input type="text" className="form-control border-start-0 py-2" placeholder="e.g. 5 Years" value={experience} onChange={(e) => setExperience(e.target.value)} />
+            <div className="provider-details mb-3 p-3 bg-light rounded-3 border">
+              <div className="row g-3">
+                <div className="col-md-6">
+                  <label className="form-label small fw-bold text-secondary mb-1">
+                    Years of Experience
+                  </label>
+                  <div className="input-group">
+                    <span className="input-group-text bg-white border-end-0">
+                      <Briefcase size={16} className="text-muted" />
+                    </span>
+                    <input
+                      type="text"
+                      className="form-control border-start-0 py-2"
+                      placeholder="e.g. 5 Years"
+                      value={experience}
+                      onChange={(e) => setExperience(e.target.value)}
+                    />
+                  </div>
                 </div>
-              </div>
-              <div className="col-md-6">
-                <label className="form-label small fw-bold text-secondary">Service Work Location</label>
-                <div className="input-group">
-                  <span className="input-group-text bg-white border-end-0"><MapPin size={16} className="text-muted" /></span>
-                  <input type="text" className="form-control border-start-0 py-2" placeholder="e.g. Andheri, Mumbai" value={location} onChange={(e) => setLocation(e.target.value)} />
+
+                <div className="col-md-6">
+                  <label className="form-label small fw-bold text-secondary mb-1">
+                    Service Work Location
+                  </label>
+                  <div className="input-group">
+                    <span className="input-group-text bg-white border-end-0">
+                      <MapPin size={16} className="text-muted" />
+                    </span>
+                    <input
+                      type="text"
+                      className="form-control border-start-0 py-2"
+                      placeholder="e.g. Andheri, Mumbai"
+                      value={location}
+                      onChange={(e) => setLocation(e.target.value)}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
