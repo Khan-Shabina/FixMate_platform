@@ -75,6 +75,10 @@ public class AuthServiceImpl implements AuthService {
             role = "ROLE_" + role.toUpperCase();
         }
 
+        if ("ROLE_ADMIN".equalsIgnoreCase(role)) {
+            throw new BadRequestException("Public registration as ADMIN is not permitted.");
+        }
+
         User user = new User();
         user.setName(registerRequest.getName());
         user.setEmail(registerRequest.getEmail());

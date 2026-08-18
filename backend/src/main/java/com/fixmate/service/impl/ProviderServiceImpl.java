@@ -36,6 +36,14 @@ public class ProviderServiceImpl implements ProviderService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public ProviderDTO getProviderByUserId(Long userId) {
+        Provider provider = providerRepository.findByUser_UserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Provider", "userId", userId));
+        return ProviderDTO.fromEntity(provider);
+    }
+
+    @Override
     @Transactional
     public ProviderDTO updateProviderAvailability(Long id, Boolean available) {
         if (available == null) {
