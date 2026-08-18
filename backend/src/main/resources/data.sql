@@ -31,8 +31,8 @@ INSERT INTO booking (booking_id, customer_id, provider_id, service_id, booking_d
 (3, 2, 1, 2, '2026-08-05 11:00:00', 'COMPLETED', TRUE, 'B-12 Sunrise Heights, Powai');
 
 -- Seed Reviews
-INSERT INTO review (review_id, booking_id, rating, comment, date) VALUES
-(1, 3, 5, 'Arrived in 15 minutes during midnight emergency! Excellent work fixing the pipe leak.', '2026-08-05 12:30:00');
+INSERT INTO review (review_id, booking_id, provider_id, rating, comment, date) VALUES
+(1, 3, 1, 5, 'Arrived in 15 minutes during midnight emergency! Excellent work fixing the pipe leak.', '2026-08-05 12:30:00');
 
 -- Seed Maintenance Reminders
 INSERT INTO maintenance_reminder (reminder_id, customer_id, service_id, reminder_date, status) VALUES

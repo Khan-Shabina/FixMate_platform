@@ -29,6 +29,7 @@ public class MaintenanceReminder {
     @Column(name = "reminder_date", nullable = false)
     private LocalDate reminderDate;
 
+    @Builder.Default
     @Column(length = 20)
     private String status = "PENDING"; // PENDING, COMPLETED, OVERDUE
 }
