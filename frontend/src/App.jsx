@@ -141,12 +141,13 @@ export default function App() {
             selectedProvider={selectedProvider} 
             setCurrentPage={setCurrentPage}
             setTrackedBooking={setTrackedBooking}
+            user={user}
           />
         );
 
       case 'tracking':
         if (!user) return <Login setCurrentPage={setCurrentPage} setUser={handleUserLogin} />;
-        return <BookingTracking trackedBooking={trackedBooking} setCurrentPage={setCurrentPage} />;
+        return <BookingTracking trackedBooking={trackedBooking} setCurrentPage={setCurrentPage} user={user} />;
 
       case 'customer-dashboard':
         if (!user) return <Login setCurrentPage={setCurrentPage} setUser={handleUserLogin} />;
@@ -160,10 +161,10 @@ export default function App() {
         );
 
       case 'reminders':
-        return <MaintenanceReminder setCurrentPage={setCurrentPage} setSelectedService={setSelectedService} />;
+        return <MaintenanceReminder setCurrentPage={setCurrentPage} setSelectedService={setSelectedService} user={user} />;
 
       case 'society':
-        return <CommunityBooking setCurrentPage={setCurrentPage} />;
+        return <CommunityBooking setCurrentPage={setCurrentPage} user={user} />;
 
       case 'provider-dashboard':
         if (!user || (user.role !== 'ROLE_PROVIDER' && user.role !== 'PROVIDER' && user.role !== 'ROLE_ADMIN' && user.role !== 'ADMIN')) {
@@ -181,7 +182,7 @@ export default function App() {
         if (!user || (user.role !== 'ROLE_PROVIDER' && user.role !== 'PROVIDER' && user.role !== 'ROLE_ADMIN' && user.role !== 'ADMIN')) {
           return renderAccessDenied('ROLE_PROVIDER');
         }
-        return <ProviderBookingMgmt setCurrentPage={setCurrentPage} />;
+        return <ProviderBookingMgmt setCurrentPage={setCurrentPage} user={user} />;
 
       case 'admin-dashboard':
         if (!user || (user.role !== 'ROLE_ADMIN' && user.role !== 'ADMIN')) {
@@ -226,6 +227,7 @@ export default function App() {
           setTrackedBooking(booking);
           setCurrentPage('tracking');
         }}
+        user={user}
       />
     </div>
   );

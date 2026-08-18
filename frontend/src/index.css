@@ -348,13 +348,20 @@ body {
     align-items: flex-start !important;
   }
   .navbar-nav .nav-item {
-    width: 100%;
+    width: auto !important;
   }
   .navbar-nav .nav-link {
     padding-left: 0 !important;
     padding-right: 0 !important;
-    width: 100%;
+    display: inline-flex !important;
+    width: fit-content !important;
+    max-width: max-content !important;
+    flex: 0 0 auto !important;
     text-align: left;
+  }
+  .navbar-nav .nav-link::after {
+    left: 0;
+    right: 0;
   }
   .navbar-action-group {
     flex-wrap: wrap !important;

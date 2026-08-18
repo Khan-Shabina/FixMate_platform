@@ -1,7 +1,13 @@
 import React from 'react';
 import fixmateLogo from '../assets/fixmate-logo.jpeg';
 import { PhoneCall, ShieldCheck, Heart } from 'lucide-react';
-import { mockTeamMembers } from '../data/mockData';
+
+const teamMembers = [
+  { name: 'Sumit Shelar', role: 'Full Stack Dev' },
+  { name: 'Sujal Shelar', role: 'Backend & DB' },
+  { name: 'Shabina Khan', role: 'Frontend & UI' },
+  { name: 'Shankar Salunkhe', role: 'QA & Security' }
+];
 
 export default function Footer({ setCurrentPage }) {
   return (
@@ -153,7 +159,7 @@ export default function Footer({ setCurrentPage }) {
                 <span className="fw-bold small text-white">FixMate Development Group</span>
               </div>
               <ul className="list-unstyled small mb-0 d-grid gap-2">
-                {mockTeamMembers.map((member, idx) => (
+                {teamMembers.map((member, idx) => (
                   <li key={idx} className="d-flex align-items-center justify-content-between text-white-50">
                     <span>{idx + 1}. {member.name}</span>
                     <span className="badge bg-primary bg-opacity-40 text-white rounded-pill px-2" style={{ fontSize: '0.65rem' }}>
