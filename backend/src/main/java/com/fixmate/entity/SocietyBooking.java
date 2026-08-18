@@ -26,18 +26,21 @@ public class SocietyBooking {
     @JoinColumn(name = "service_id", nullable = false)
     private ServiceEntity service;
 
+    @Builder.Default
     @Column(name = "members_count")
     private Integer membersCount = 1;
 
     @Column(name = "booking_date", nullable = false)
     private LocalDate bookingDate;
 
+    @Builder.Default
     @Column(length = 20)
     private String status = "ACTIVE"; // ACTIVE, CONFIRMED, COMPLETED
 
     @Column(name = "society_name", nullable = false, length = 100)
     private String societyName;
 
+    @Builder.Default
     @Column(name = "discount_percentage")
     private Integer discountPercentage = 15;
 }

@@ -26,6 +26,7 @@ public class BookingDTOs {
         @NotBlank(message = "Address is required")
         private String address;
 
+        @Builder.Default
         private Boolean emergencyFlag = false;
 
         private String notes;

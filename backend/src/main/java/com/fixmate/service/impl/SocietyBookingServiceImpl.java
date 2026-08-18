@@ -1,11 +1,14 @@
 package com.fixmate.service.impl;
 
 import com.fixmate.entity.Booking;
+import com.fixmate.entity.Provider;
 import com.fixmate.entity.ServiceEntity;
 import com.fixmate.entity.SocietyBooking;
 import com.fixmate.entity.User;
+import com.fixmate.exception.BadRequestException;
 import com.fixmate.exception.ResourceNotFoundException;
 import com.fixmate.repository.BookingRepository;
+import com.fixmate.repository.ProviderRepository;
 import com.fixmate.repository.ServiceRepository;
 import com.fixmate.repository.SocietyBookingRepository;
 import com.fixmate.repository.UserRepository;
@@ -32,6 +35,9 @@ public class SocietyBookingServiceImpl implements SocietyBookingService {
 
     @Autowired
     private BookingRepository bookingRepository;
+
+    @Autowired
+    private ProviderRepository providerRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -80,10 +86,19 @@ public class SocietyBookingServiceImpl implements SocietyBookingService {
         User customer = userRepository.findById(customerId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", customerId));
 
+        // 1. Select available/verified provider before creating individual booking
+        Provider provider = providerRepository.findTopByVerificationStatusAndIsAvailableOrderByTrustScoreDesc("VERIFIED", true)
+                .orElseGet(() -> providerRepository.findAll().stream().filter(Provider::getIsAvailable).findFirst()
+                        .orElseGet(() -> providerRepository.findAll().stream().findFirst().orElse(null)));
+
+        if (provider == null) {
+            throw new BadRequestException("No service providers are currently available for assignment");
+        }
+
+        // 2. Increment members and calculate tier discount
         int newCount = groupBooking.getMembersCount() + 1;
         groupBooking.setMembersCount(newCount);
 
-        // Calculate dynamic group discount percentage
         int discount = 15;
         if (newCount >= 10) {
             discount = 25;
@@ -94,9 +109,10 @@ public class SocietyBookingServiceImpl implements SocietyBookingService {
 
         SocietyBooking savedGroup = societyBookingRepository.save(groupBooking);
 
-        // Auto-create a discounted individual booking for the joined resident
+        // 3. Auto-create a discounted individual booking for the joined resident with verified provider
         Booking individualBooking = new Booking();
         individualBooking.setCustomer(customer);
+        individualBooking.setProvider(provider);
         individualBooking.setService(groupBooking.getService());
         individualBooking.setBookingDate(groupBooking.getBookingDate().atTime(10, 0));
         individualBooking.setAddress(groupBooking.getSocietyName());
