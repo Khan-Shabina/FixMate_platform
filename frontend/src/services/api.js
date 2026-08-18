@@ -1,17 +1,61 @@
-import { mockServices, mockProviders, mockBookings, mockReminders, mockSocietyBookings } from '../data/mockData';
-
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
 
-const getAuthHeaders = () => {
+const getAuthHeaders = (isJson = true) => {
   const token = localStorage.getItem('fixmate_token');
-  return {
-    'Content-Type': 'application/json',
-    ...(token ? { 'Authorization': `Bearer ${token}` } : {})
-  };
+  const headers = {};
+  if (isJson) {
+    headers['Content-Type'] = 'application/json';
+  }
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  return headers;
+};
+
+const handleResponse = async (res) => {
+  if (res.status === 204) {
+    return { success: true, data: null };
+  }
+
+  let data = null;
+  const contentType = res.headers.get('content-type');
+  if (contentType && contentType.includes('application/json')) {
+    try {
+      data = await res.json();
+    } catch {
+      data = null;
+    }
+  }
+
+  if (res.ok) {
+    return { success: true, data };
+  }
+
+  if (res.status === 401) {
+    return {
+      success: false,
+      status: 401,
+      error: data?.message || 'Authentication required. Please sign in.'
+    };
+  }
+
+  if (res.status === 403) {
+    return {
+      success: false,
+      status: 403,
+      error: data?.message || 'Access denied. You do not have permission.'
+    };
+  }
+
+  const errorMsg = data?.errors
+    ? Object.values(data.errors).join(', ')
+    : data?.message || `Request failed with status ${res.status}`;
+
+  return { success: false, status: res.status, error: errorMsg, data };
 };
 
 export const apiService = {
-  // Authentication - Login
+  // ================= AUTHENTICATION =================
   login: async (email, password) => {
     try {
       const res = await fetch(`${BASE_URL}/auth/login`, {
@@ -19,22 +63,17 @@ export const apiService = {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
       });
-      const data = await res.json();
-      if (res.ok) {
-        if (data.accessToken) {
-          localStorage.setItem('fixmate_token', data.accessToken);
-        }
-        return { success: true, user: data };
-      } else {
-        return { success: false, error: data.message || 'Invalid email or password' };
+      const result = await handleResponse(res);
+      if (result.success && result.data?.accessToken) {
+        localStorage.setItem('fixmate_token', result.data.accessToken);
+        return { success: true, user: result.data };
       }
-    } catch {
-      console.warn('Backend server offline or unreachable. Please ensure Spring Boot is running on port 8080.');
-      return { success: false, error: 'Could not connect to backend server on port 8080. Please start the Spring Boot app.' };
+      return { success: false, error: result.error || 'Invalid credentials' };
+    } catch (err) {
+      return { success: false, error: 'Could not connect to backend server. Please verify the API is running.' };
     }
   },
 
-  // Authentication - Register
   register: async (userData) => {
     try {
       const res = await fetch(`${BASE_URL}/auth/register`, {
@@ -42,72 +81,76 @@ export const apiService = {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(userData)
       });
-      const data = await res.json();
-      if (res.ok) {
-        if (data.accessToken) {
-          localStorage.setItem('fixmate_token', data.accessToken);
-        }
-        return { success: true, user: data };
-      } else {
-        const errorMsg = data.errors ? Object.values(data.errors).join(', ') : (data.message || 'Registration failed');
-        return { success: false, error: errorMsg };
+      const result = await handleResponse(res);
+      if (result.success && result.data?.accessToken) {
+        localStorage.setItem('fixmate_token', result.data.accessToken);
+        return { success: true, user: result.data };
       }
-    } catch {
-      console.warn('Backend server offline or unreachable. Please ensure Spring Boot is running on port 8080.');
-      return { success: false, error: 'Could not connect to backend server on port 8080. Please start the Spring Boot app.' };
+      return { success: false, error: result.error || 'Registration failed' };
+    } catch (err) {
+      return { success: false, error: 'Could not connect to backend server. Please verify the API is running.' };
     }
   },
 
-  // Get Current User Profile
   getCurrentUser: async () => {
     try {
       const res = await fetch(`${BASE_URL}/users/me`, {
         headers: getAuthHeaders()
       });
-      if (res.ok) return await res.json();
+      const result = await handleResponse(res);
+      return result.success ? result.data : null;
     } catch {
-      console.warn('Backend offline');
+      return null;
     }
-    return null;
   },
 
-  // Admin Stats & Verification
-  getAdminStats: async () => {
+  updateUserProfile: async (updateData) => {
     try {
-      const res = await fetch(`${BASE_URL}/admin/stats`, {
-        headers: getAuthHeaders()
-      });
-      if (res.ok) return await res.json();
-    } catch {
-      console.warn('Backend offline');
-    }
-    return null;
-  },
-
-  verifyProvider: async (providerId, status) => {
-    try {
-      const res = await fetch(`${BASE_URL}/admin/verify-provider/${providerId}?status=${status}`, {
+      const res = await fetch(`${BASE_URL}/users/profile`, {
         method: 'PUT',
-        headers: getAuthHeaders()
+        headers: getAuthHeaders(),
+        body: JSON.stringify(updateData)
       });
-      if (res.ok) return { success: true, data: await res.json() };
+      return await handleResponse(res);
     } catch {
-      console.warn('Backend offline');
+      return { success: false, error: 'Network error while updating profile' };
     }
-    return { success: true };
   },
 
-  // Services
+  // ================= SERVICES =================
   getServices: async () => {
     try {
       const res = await fetch(`${BASE_URL}/services`, {
-        headers: getAuthHeaders()
+        headers: getAuthHeaders(false)
       });
-      if (res.ok) return await res.json();
+      const result = await handleResponse(res);
+      return result.success && Array.isArray(result.data) ? result.data : [];
     } catch {
-      console.warn('Backend offline, returning mock services');
+      return [];
     }
-    return mockServices;
+  },
+
+  getServiceById: async (serviceId) => {
+    try {
+      const res = await fetch(`${BASE_URL}/services/${serviceId}`, {
+        headers: getAuthHeaders(false)
+      });
+      return await handleResponse(res);
+    } catch {
+      return { success: false, error: 'Failed to fetch service' };
+    }
+  },
+
+  getServicesByCategory: async (category) => {
+    try {
+      const res = await fetch(`${BASE_URL}/services/category/${encodeURIComponent(category)}`, {
+        headers: getAuthHeaders(false)
+      });
+      const result = await handleResponse(res);
+      return result.success && Array.isArray(result.data) ? result.data : [];
+    } catch {
+      return [];
+    }
   },
 
   addService: async (serviceData) => {
@@ -117,13 +160,7 @@ export const apiService = {
         headers: getAuthHeaders(),
         body: JSON.stringify(serviceData)
       });
-      if (res.ok) return { success: true, data: await res.json() };
-      let errorMsg = 'Failed to add service';
-      try {
-        const data = await res.json();
-        if (data && data.message) errorMsg = data.message;
-      } catch {}
-      return { success: false, error: errorMsg };
+      return await handleResponse(res);
     } catch {
       return { success: false, error: 'Network error while adding service' };
     }
@@ -133,36 +170,62 @@ export const apiService = {
     try {
       const res = await fetch(`${BASE_URL}/services/${serviceId}`, {
         method: 'DELETE',
-        headers: getAuthHeaders()
+        headers: getAuthHeaders(false)
       });
-      if (res.ok || res.status === 204) {
-        return { success: true };
-      }
-      let errorMsg = 'Failed to delete service';
-      try {
-        const data = await res.json();
-        if (data && data.message) errorMsg = data.message;
-      } catch {}
-      return { success: false, error: errorMsg };
+      return await handleResponse(res);
     } catch {
       return { success: false, error: 'Network error while deleting service' };
     }
   },
 
-  // Providers
+  // ================= PROVIDERS =================
   getProviders: async () => {
     try {
       const res = await fetch(`${BASE_URL}/providers`, {
-        headers: getAuthHeaders()
+        headers: getAuthHeaders(false)
       });
-      if (res.ok) return await res.json();
+      const result = await handleResponse(res);
+      return result.success && Array.isArray(result.data) ? result.data : [];
     } catch {
-      console.warn('Backend offline, returning mock providers');
+      return [];
     }
-    return mockProviders;
   },
 
-  // Bookings
+  getProviderById: async (providerId) => {
+    try {
+      const res = await fetch(`${BASE_URL}/providers/${providerId}`, {
+        headers: getAuthHeaders(false)
+      });
+      return await handleResponse(res);
+    } catch {
+      return { success: false, error: 'Failed to fetch provider details' };
+    }
+  },
+
+  getProviderByUserId: async (userId) => {
+    try {
+      const res = await fetch(`${BASE_URL}/providers/user/${userId}`, {
+        headers: getAuthHeaders()
+      });
+      return await handleResponse(res);
+    } catch {
+      return { success: false, error: 'Failed to fetch provider profile' };
+    }
+  },
+
+  updateProviderAvailability: async (providerId, available) => {
+    try {
+      const res = await fetch(`${BASE_URL}/providers/${providerId}/availability?available=${available}`, {
+        method: 'PUT',
+        headers: getAuthHeaders()
+      });
+      return await handleResponse(res);
+    } catch {
+      return { success: false, error: 'Network error while updating provider availability' };
+    }
+  },
+
+  // ================= BOOKINGS =================
   createBooking: async (bookingData) => {
     try {
       const res = await fetch(`${BASE_URL}/bookings`, {
@@ -170,77 +233,141 @@ export const apiService = {
         headers: getAuthHeaders(),
         body: JSON.stringify(bookingData)
       });
-      if (res.ok) return { success: true, data: await res.json() };
-      const data = await res.json();
-      return { success: false, error: data.message || 'Failed to create booking' };
+      return await handleResponse(res);
     } catch {
-      console.warn('Backend offline, returning mock booking creation');
+      return { success: false, error: 'Network error while creating booking' };
     }
-    return {
-      success: true,
-      data: {
-        bookingId: Math.floor(1000 + Math.random() * 9000),
-        ...bookingData,
-        status: 'REQUESTED'
-      }
-    };
   },
 
   getCustomerBookings: async (customerId) => {
     try {
-      const endpoint = customerId ? `${BASE_URL}/bookings/customer/${customerId}` : `${BASE_URL}/bookings`;
-      const res = await fetch(endpoint, {
+      if (!customerId) return [];
+      const res = await fetch(`${BASE_URL}/bookings/customer/${customerId}`, {
         headers: getAuthHeaders()
       });
-      if (res.ok) {
-        const data = await res.json();
-        if (Array.isArray(data)) return data;
-      }
+      const result = await handleResponse(res);
+      return result.success && Array.isArray(result.data) ? result.data : [];
     } catch {
-      console.warn('Backend offline, returning mock bookings');
+      return [];
     }
-    return mockBookings;
+  },
+
+  getProviderBookings: async (providerId) => {
+    try {
+      if (!providerId) return [];
+      const res = await fetch(`${BASE_URL}/bookings/provider/${providerId}`, {
+        headers: getAuthHeaders()
+      });
+      const result = await handleResponse(res);
+      return result.success && Array.isArray(result.data) ? result.data : [];
+    } catch {
+      return [];
+    }
+  },
+
+  getAllBookings: async () => {
+    try {
+      const res = await fetch(`${BASE_URL}/bookings`, {
+        headers: getAuthHeaders()
+      });
+      const result = await handleResponse(res);
+      return result.success && Array.isArray(result.data) ? result.data : [];
+    } catch {
+      return [];
+    }
+  },
+
+  getBookingById: async (bookingId) => {
+    try {
+      const res = await fetch(`${BASE_URL}/bookings/${bookingId}`, {
+        headers: getAuthHeaders()
+      });
+      return await handleResponse(res);
+    } catch {
+      return { success: false, error: 'Failed to fetch booking details' };
+    }
   },
 
   updateBookingStatus: async (bookingId, status) => {
     try {
-      const res = await fetch(`${BASE_URL}/bookings/${bookingId}/status?status=${status}`, {
+      const res = await fetch(`${BASE_URL}/bookings/${bookingId}/status?status=${encodeURIComponent(status)}`, {
         method: 'PUT',
         headers: getAuthHeaders()
       });
-      if (res.ok) return { success: true, data: await res.json() };
-      const data = await res.json();
-      return { success: false, error: data.message || 'Invalid status' };
+      return await handleResponse(res);
     } catch {
-      return { success: false, error: 'Network error' };
+      return { success: false, error: 'Network error while updating booking status' };
     }
   },
 
-  // Maintenance Reminders
+  // ================= MAINTENANCE REMINDERS =================
   getReminders: async (customerId) => {
     try {
-      const endpoint = customerId ? `${BASE_URL}/reminders/customer/${customerId}` : `${BASE_URL}/reminders/customer/1`;
-      const res = await fetch(endpoint, {
+      if (!customerId) return [];
+      const res = await fetch(`${BASE_URL}/reminders/customer/${customerId}`, {
         headers: getAuthHeaders()
       });
-      if (res.ok) return await res.json();
+      const result = await handleResponse(res);
+      return result.success && Array.isArray(result.data) ? result.data : [];
     } catch {
-      console.warn('Backend offline, returning mock reminders');
+      return [];
     }
-    return mockReminders;
   },
 
-  // Society Bookings
+  completeReminder: async (reminderId) => {
+    try {
+      const res = await fetch(`${BASE_URL}/reminders/${reminderId}/complete`, {
+        method: 'PUT',
+        headers: getAuthHeaders()
+      });
+      return await handleResponse(res);
+    } catch {
+      return { success: false, error: 'Network error while completing reminder' };
+    }
+  },
+
+  // ================= SOCIETY BOOKINGS =================
   getSocietyBookings: async () => {
     try {
       const res = await fetch(`${BASE_URL}/society-bookings`, {
+        headers: getAuthHeaders(false)
+      });
+      const result = await handleResponse(res);
+      return result.success && Array.isArray(result.data) ? result.data : [];
+    } catch {
+      return [];
+    }
+  },
+
+  getCustomerSocietyBookings: async (customerId) => {
+    try {
+      if (!customerId) return [];
+      const res = await fetch(`${BASE_URL}/society-bookings/customer/${customerId}`, {
         headers: getAuthHeaders()
       });
-      if (res.ok) return await res.json();
+      const result = await handleResponse(res);
+      return result.success && Array.isArray(result.data) ? result.data : [];
     } catch {
-      console.warn('Backend offline, returning mock society bookings');
+      return [];
     }
-    return mockSocietyBookings;
+  },
+
+  createSocietyBooking: async ({ customerId, serviceId, societyName, bookingDate }) => {
+    try {
+      const params = new URLSearchParams({
+        customerId,
+        serviceId,
+        societyName: societyName || 'Green Valley Society',
+        bookingDate: bookingDate || ''
+      });
+      const res = await fetch(`${BASE_URL}/society-bookings?${params.toString()}`, {
+        method: 'POST',
+        headers: getAuthHeaders()
+      });
+      return await handleResponse(res);
+    } catch {
+      return { success: false, error: 'Network error while creating society group' };
+    }
   },
 
   joinSocietyBooking: async (societyBookingId, customerId) => {
@@ -249,10 +376,98 @@ export const apiService = {
         method: 'POST',
         headers: getAuthHeaders()
       });
-      if (res.ok) return { success: true, data: await res.json() };
+      return await handleResponse(res);
     } catch {
-      console.warn('Backend offline');
+      return { success: false, error: 'Network error while joining society group' };
     }
-    return { success: true };
+  },
+
+  // ================= REVIEWS =================
+  submitReview: async ({ bookingId, rating, comment }) => {
+    try {
+      const res = await fetch(`${BASE_URL}/reviews`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ bookingId, rating, comment })
+      });
+      return await handleResponse(res);
+    } catch {
+      return { success: false, error: 'Network error while submitting review' };
+    }
+  },
+
+  getProviderReviews: async (providerId) => {
+    try {
+      if (!providerId) return [];
+      const res = await fetch(`${BASE_URL}/reviews/provider/${providerId}`, {
+        headers: getAuthHeaders(false)
+      });
+      const result = await handleResponse(res);
+      return result.success && Array.isArray(result.data) ? result.data : [];
+    } catch {
+      return [];
+    }
+  },
+
+  getBookingReview: async (bookingId) => {
+    try {
+      if (!bookingId) return null;
+      const res = await fetch(`${BASE_URL}/reviews/booking/${bookingId}`, {
+        headers: getAuthHeaders()
+      });
+      const result = await handleResponse(res);
+      return result.success ? result.data : null;
+    } catch {
+      return null;
+    }
+  },
+
+  // ================= ADMIN =================
+  getAdminStats: async () => {
+    try {
+      const res = await fetch(`${BASE_URL}/admin/stats`, {
+        headers: getAuthHeaders()
+      });
+      const result = await handleResponse(res);
+      return result.success ? result.data : null;
+    } catch {
+      return null;
+    }
+  },
+
+  getAllUsers: async () => {
+    try {
+      const res = await fetch(`${BASE_URL}/admin/users`, {
+        headers: getAuthHeaders()
+      });
+      const result = await handleResponse(res);
+      return result.success && Array.isArray(result.data) ? result.data : [];
+    } catch {
+      return [];
+    }
+  },
+
+  updateUserRole: async (userId, role) => {
+    try {
+      const res = await fetch(`${BASE_URL}/admin/users/${userId}/role?role=${encodeURIComponent(role)}`, {
+        method: 'PUT',
+        headers: getAuthHeaders()
+      });
+      return await handleResponse(res);
+    } catch {
+      return { success: false, error: 'Network error while updating user role' };
+    }
+  },
+
+  verifyProvider: async (providerId, status) => {
+    try {
+      const res = await fetch(`${BASE_URL}/admin/verify-provider/${providerId}?status=${encodeURIComponent(status)}`, {
+        method: 'PUT',
+        headers: getAuthHeaders()
+      });
+      return await handleResponse(res);
+    } catch {
+      return { success: false, error: 'Network error while verifying provider' };
+    }
   }
 };

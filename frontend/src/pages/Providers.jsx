@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Search, ShieldCheck, ArrowRight, Filter } from 'lucide-react';
+import { Search, ShieldCheck, ArrowRight, Filter, AlertCircle } from 'lucide-react';
 import ProviderCard from '../components/ProviderCard';
-import { mockProviders } from '../data/mockData';
 import { apiService } from '../services/api';
 
 export default function Providers({ setCurrentPage, setSelectedProvider }) {
@@ -9,30 +8,41 @@ export default function Providers({ setCurrentPage, setSelectedProvider }) {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [onlyAvailable, setOnlyAvailable] = useState(false);
   const [providersList, setProvidersList] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState('');
 
   useEffect(() => {
     const fetchProviders = async () => {
-      const data = await apiService.getProviders();
-      if (Array.isArray(data) && data.length > 0) {
-        setProvidersList(data.map(p => ({
-          id: p.id || p.providerId,
-          name: p.name || p.user?.name || 'Provider',
-          role: p.role || p.category || 'Technician',
-          category: p.category || 'General',
-          location: p.location || p.address || 'Mumbai',
-          rating: p.rating || 4.8,
-          jobsCompleted: p.jobsCompleted || 100,
-          trustScore: p.trustScore || 95,
-          available: p.available !== undefined ? p.available : true,
-          experience: p.experience || '5 Years',
-          phone: p.phone || '+91 98200 00000',
-          img: p.img || 'https://images.unsplash.com/photo-1540569014015-19a7be504e3a?w=150&h=150&fit=crop&crop=faces',
-          verified: p.verified !== undefined ? p.verified : true,
-          bio: p.bio || 'Verified service professional.',
-          reviewsCount: p.reviewsCount || 50
-        })));
-      } else {
-        setProvidersList(mockProviders);
+      setLoading(true);
+      setErrorMsg('');
+      try {
+        const data = await apiService.getProviders();
+        if (Array.isArray(data)) {
+          setProvidersList(data.map(p => ({
+            id: p.providerId || p.id,
+            providerId: p.providerId || p.id,
+            userId: p.userId,
+            name: p.name || (p.user ? p.user.name : 'Service Provider'),
+            role: p.role || p.experience ? `${p.experience} Exp Technician` : 'Home Maintenance Specialist',
+            location: p.location || 'Local Area',
+            rating: 4.9,
+            trustScore: p.trustScore || 85,
+            available: p.isAvailable !== undefined ? p.isAvailable : (p.available !== undefined ? p.available : true),
+            isAvailable: p.isAvailable !== undefined ? p.isAvailable : true,
+            experience: p.experience || '3 Years',
+            phone: p.phone || (p.user ? p.user.phone : '+91 98200 11223'),
+            img: 'https://images.unsplash.com/photo-1540569014015-19a7be504e3a?w=150&h=150&fit=crop&crop=faces',
+            verified: p.verificationStatus === 'VERIFIED' || p.verified === true,
+            verificationStatus: p.verificationStatus || 'PENDING',
+            bio: `Verified local service professional based in ${p.location || 'your area'}. Specializes in high-quality home repairs with community-backed trust metrics.`
+          })));
+        } else {
+          setErrorMsg('Failed to load service providers.');
+        }
+      } catch {
+        setErrorMsg('Could not connect to provider directory.');
+      } finally {
+        setLoading(false);
       }
     };
     fetchProviders();
@@ -44,7 +54,7 @@ export default function Providers({ setCurrentPage, setSelectedProvider }) {
     const role = p.role || '';
     const name = p.name || '';
     const location = p.location || '';
-    const matchesCategory = selectedCategory === 'All' || role.toLowerCase().includes(selectedCategory.toLowerCase());
+    const matchesCategory = selectedCategory === 'All' || role.toLowerCase().includes(selectedCategory.toLowerCase()) || (p.category && p.category.toLowerCase().includes(selectedCategory.toLowerCase()));
     const matchesSearch = name.toLowerCase().includes(search.toLowerCase()) || 
                           location.toLowerCase().includes(search.toLowerCase()) ||
                           role.toLowerCase().includes(search.toLowerCase());
@@ -73,6 +83,12 @@ export default function Providers({ setCurrentPage, setSelectedProvider }) {
         </div>
       </div>
 
+      {errorMsg && (
+        <div className="alert alert-danger d-flex align-items-center gap-2 mb-4">
+          <AlertCircle size={18} /> {errorMsg}
+        </div>
+      )}
+
       {/* Filter and Search Bar */}
       <div className="bg-white p-3 rounded-4 shadow-sm border mb-4">
         <div className="row g-3 align-items-center">
@@ -82,7 +98,7 @@ export default function Providers({ setCurrentPage, setSelectedProvider }) {
               <input 
                 type="text" 
                 className="form-control border-start-0 py-2" 
-                placeholder="Search provider by name, skill, or location..."
+                placeholder="Search provider by name or location..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
@@ -119,36 +135,42 @@ export default function Providers({ setCurrentPage, setSelectedProvider }) {
       </div>
 
       {/* Provider List Grid */}
-      <div className="row g-4">
-        {filteredProviders.length > 0 ? (
-          filteredProviders.map((provider) => (
-            <div className="col-lg-6" key={provider.id}>
-              <ProviderCard 
-                provider={provider}
-                onSelect={(p) => {
-                  setSelectedProvider(p);
-                  setCurrentPage('booking');
-                }}
-                onViewProfile={(p) => {
-                  setSelectedProvider(p);
-                  setCurrentPage('provider-profile');
-                }}
-              />
+      {loading ? (
+        <div className="text-center py-5 text-muted card card-fixmate p-5">
+          <div className="spinner-border spinner-border-sm text-primary me-2" role="status"></div> Loading verified local professionals...
+        </div>
+      ) : (
+        <div className="row g-4">
+          {filteredProviders.length > 0 ? (
+            filteredProviders.map((provider) => (
+              <div className="col-lg-6" key={provider.id}>
+                <ProviderCard 
+                  provider={provider}
+                  onSelect={(p) => {
+                    setSelectedProvider(p);
+                    setCurrentPage('booking');
+                  }}
+                  onViewProfile={(p) => {
+                    setSelectedProvider(p);
+                    setCurrentPage('provider-profile');
+                  }}
+                />
+              </div>
+            ))
+          ) : (
+            <div className="col-12 text-center py-5">
+              <div className="p-4 bg-light rounded-4 max-w-md mx-auto">
+                <Filter size={40} className="text-muted mb-3" />
+                <h5 className="fw-bold text-dark">No Technicians Match Your Filter</h5>
+                <p className="text-muted small">Try clearing your search query or enabling all availability options.</p>
+                <button className="btn btn-outline-primary btn-sm rounded-pill" onClick={() => { setSearch(''); setSelectedCategory('All'); setOnlyAvailable(false); }}>
+                  Reset All Filters
+                </button>
+              </div>
             </div>
-          ))
-        ) : (
-          <div className="col-12 text-center py-5">
-            <div className="p-4 bg-light rounded-4 max-w-md mx-auto">
-              <Filter size={40} className="text-muted mb-3" />
-              <h5 className="fw-bold text-dark">No Technicians Match Your Filter</h5>
-              <p className="text-muted small">Try clearing your search query or enabling all availability options.</p>
-              <button className="btn btn-outline-primary btn-sm rounded-pill" onClick={() => { setSearch(''); setSelectedCategory('All'); setOnlyAvailable(false); }}>
-                Reset All Filters
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

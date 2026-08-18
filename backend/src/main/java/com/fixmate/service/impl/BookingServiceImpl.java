@@ -137,12 +137,13 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new ResourceNotFoundException("Booking", "id", bookingId));
 
+        String previousStatus = booking.getStatus();
         String newStatus = status.toUpperCase();
         booking.setStatus(newStatus);
         Booking updatedBooking = bookingRepository.save(booking);
 
-        // If status changed to COMPLETED: schedule maintenance reminder & update trust score
-        if ("COMPLETED".equals(newStatus)) {
+        // If status transitioned to COMPLETED: schedule maintenance reminder & update trust score
+        if ("COMPLETED".equals(newStatus) && !"COMPLETED".equalsIgnoreCase(previousStatus)) {
             reminderService.scheduleReminderForCompletedBooking(updatedBooking);
             if (updatedBooking.getProvider() != null) {
                 trustScoreService.updateProviderTrustScore(updatedBooking.getProvider().getProviderId());

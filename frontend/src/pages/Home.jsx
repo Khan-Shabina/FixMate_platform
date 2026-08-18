@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Search, Zap, ShieldCheck, ArrowRight, CheckCircle2, Clock, Calendar, Users, Award, Sparkles } from 'lucide-react';
 import ServiceCard from '../components/ServiceCard';
 import ProviderCard from '../components/ProviderCard';
-import { mockProviders } from '../data/mockData';
 import { apiService } from '../services/api';
 
 export default function Home({ setCurrentPage, setSelectedService, setSelectedProvider, onOpenEmergency }) {
@@ -38,10 +37,8 @@ export default function Home({ setCurrentPage, setSelectedService, setSelectedPr
     const fetchProviders = async () => {
       setLoadingProviders(true);
       const data = await apiService.getProviders();
-      if (Array.isArray(data) && data.length > 0) {
+      if (Array.isArray(data)) {
         setProviders(data);
-      } else {
-        setProviders(mockProviders);
       }
       setLoadingProviders(false);
     };
@@ -255,6 +252,11 @@ export default function Home({ setCurrentPage, setSelectedService, setSelectedPr
           {loadingProviders ? (
             <div className="text-center py-4 text-muted">
               <div className="spinner-border text-primary me-2" role="status"></div> Loading technicians...
+            </div>
+          ) : providers.length === 0 ? (
+            <div className="text-center py-4 bg-white rounded-4 shadow-sm p-4 max-w-md mx-auto">
+              <h6 className="fw-bold text-dark mb-1">No Service Professionals Available Yet</h6>
+              <p className="text-muted small mb-0">Technicians will appear here as they register and get verified by administrators.</p>
             </div>
           ) : (
             <div className="row g-4">

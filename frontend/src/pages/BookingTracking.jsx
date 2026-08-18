@@ -1,9 +1,27 @@
 import React from 'react';
 import { CheckCircle, PhoneCall, ShieldCheck, UserCheck } from 'lucide-react';
-import { mockBookings } from '../data/mockData';
 
 export default function BookingTracking({ trackedBooking, setCurrentPage }) {
-  const b = trackedBooking || mockBookings[0];
+  if (!trackedBooking) {
+    return (
+      <div className="container py-5 text-center">
+        <div className="card card-fixmate border-0 shadow-lg p-5 max-w-lg mx-auto">
+          <h4 className="fw-bold text-dark mb-2">No Active Booking Selected for Tracking</h4>
+          <p className="text-muted small mb-4">Please select an active booking from your Customer Dashboard to track live progress.</p>
+          <div className="d-flex justify-content-center gap-2">
+            <button className="btn btn-fixmate-primary rounded-pill px-4 fw-bold" onClick={() => setCurrentPage('customer-dashboard')}>
+              Go to Customer Dashboard
+            </button>
+            <button className="btn btn-outline-secondary rounded-pill px-4 fw-semibold" onClick={() => setCurrentPage('services')}>
+              Browse Services
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const b = trackedBooking;
 
   const steps = [
     { title: 'Requested', desc: 'Booking sent to local provider', key: 'Requested' },
@@ -13,12 +31,14 @@ export default function BookingTracking({ trackedBooking, setCurrentPage }) {
   ];
 
   const getCurrentStepIndex = () => {
-    switch (b.status) {
-      case 'Requested': return 0;
-      case 'Accepted': return 1;
-      case 'In Progress': return 2;
-      case 'Completed': return 3;
-      default: return 1;
+    const s = (b.status || '').toUpperCase();
+    switch (s) {
+      case 'REQUESTED': return 0;
+      case 'ACCEPTED': return 1;
+      case 'IN_PROGRESS':
+      case 'IN PROGRESS': return 2;
+      case 'COMPLETED': return 3;
+      default: return 0;
     }
   };
 

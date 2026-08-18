@@ -23,7 +23,7 @@ public class Review {
     private Booking booking;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "provider_id")
+    @JoinColumn(name = "provider_id", nullable = false)
     private Provider provider;
 
     @Column(nullable = false)

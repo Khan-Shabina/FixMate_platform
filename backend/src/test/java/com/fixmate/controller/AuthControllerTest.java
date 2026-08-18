@@ -125,4 +125,24 @@ public class AuthControllerTest {
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.error").value("Unauthorized"));
     }
+
+    @Test
+    @DisplayName("POST /api/auth/register - Rejects Admin Registration")
+    public void testRegisterRejectAdminRole() throws Exception {
+        RegisterRequest request = new RegisterRequest();
+        request.setName("Hacker Admin");
+        request.setEmail("hacker@fixmate.com");
+        request.setPassword("securePassword123");
+        request.setPhone("+91 9876543210");
+        request.setRole("ROLE_ADMIN");
+
+        Mockito.when(authService.register(any(RegisterRequest.class)))
+                .thenThrow(new BadRequestException("Public registration as ADMIN is not permitted."));
+
+        mockMvc.perform(post("/api/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Public registration as ADMIN is not permitted."));
+    }
 }

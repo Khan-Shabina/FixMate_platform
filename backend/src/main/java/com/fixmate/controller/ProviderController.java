@@ -26,6 +26,11 @@ public class ProviderController {
         return ResponseEntity.ok(providerService.getProviderById(id));
     }
 
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<ProviderDTO> getProviderByUserId(@PathVariable Long userId) {
+        return ResponseEntity.ok(providerService.getProviderByUserId(userId));
+    }
+
     @PutMapping("/{id}/availability")
     public ResponseEntity<ProviderDTO> updateAvailability(
             @PathVariable Long id,
