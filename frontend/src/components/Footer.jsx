@@ -3,10 +3,10 @@ import fixmateLogo from '../assets/fixmate-logo.jpeg';
 import { PhoneCall, ShieldCheck, Heart } from 'lucide-react';
 
 const teamMembers = [
-  { name: 'Sumit Shelar', role: 'Full Stack Dev' },
-  { name: 'Sujal Shelar', role: 'Backend & DB' },
-  { name: 'Shabina Khan', role: 'Frontend & UI' },
-  { name: 'Shankar Salunkhe', role: 'QA & Security' }
+  { name: 'Shabina Khan', role: 'Dev' },
+  { name: 'Shankar Sala', role: 'Dev' },
+  { name: 'Siddhi Patil', role: 'Dev' },
+  { name: 'Sumit Shelar', role: 'Dev' }
 ];
 
 export default function Footer({ setCurrentPage }) {
